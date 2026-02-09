@@ -1814,8 +1814,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     ω = Polynomial(Ω_2003A...)(Δt)
 
     #  Summation of luni-solar nutation series.
-    ln = vcat([t.n' for t in iau_2000A_nutation_lunisolar_series]...)
-    la = vcat([t.a' for t in iau_2000A_nutation_lunisolar_series]...)
+    ln = iau_2000A_nutation_lunisolar_series_ln
+    la = iau_2000A_nutation_lunisolar_series_la
     # ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_lunisolar_series]...)
     # la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_lunisolar_series]...)
     ϕl = mod2pi.(ln*deg2rad.(rem.(SVector(l, lp, f, d, ω), ARCSECPER2PI)./3600))
@@ -1854,8 +1854,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     #  General accumulated precession in longitude (IERS 2003).
     fpa = Polynomial(lge_2003...)(Δt)
     
-    pn = vcat([t.n' for t in iau_2000A_nutation_planetary_series]...)
-    pa = vcat([t.a' for t in iau_2000A_nutation_planetary_series]...)
+    pn = iau_2000A_nutation_planetary_series_pn
+    pa = iau_2000A_nutation_planetary_series_pa
     # println("$(size(pn)),  $(size(pa))")
     # pn = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_planetary_series]...)
     # pa = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_planetary_series]...)
@@ -1869,6 +1869,10 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
 
     (ψ = δψl + δψp, ϵ = δϵl + δϵp)
 end
+const iau_2000A_nutation_lunisolar_series_ln = vcat([t.n' for t in iau_2000A_nutation_lunisolar_series]...)
+const iau_2000A_nutation_lunisolar_series_la = vcat([t.a' for t in iau_2000A_nutation_lunisolar_series]...)
+const iau_2000A_nutation_planetary_series_pn = vcat([t.n' for t in iau_2000A_nutation_planetary_series]...)
+const iau_2000A_nutation_planetary_series_pa = vcat([t.a' for t in iau_2000A_nutation_planetary_series]...)
 
 """
     nut00b(day1::AbstractFloat, day2::AbstractFloat)
