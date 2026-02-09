@@ -1818,11 +1818,18 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     la = iau_2000A_nutation_lunisolar_series_la
     # ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_lunisolar_series]...)
     # la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_lunisolar_series]...)
-    ϕl = mod2pi.(ln*deg2rad.(rem.(SVector(l, lp, f, d, ω), ARCSECPER2PI)./3600))
+
     #  Convert from 0.1 μas to radians
-    δψl, δϵl = deg2rad.(
-        (sum((la[:,1] .+ la[:,2].*Δt).*sin.(ϕl) .+ la[:,3].*cos.(ϕl)),
-         sum((la[:,4] .+ la[:,5].*Δt).*cos.(ϕl) .+ la[:,6].*sin.(ϕl)))./3.6e10)
+    ϕl = mod2pi.(ln*deg2rad.(rem.(SVector(l, lp, f, d, ω), ARCSECPER2PI)./3600))
+    sum1 = sum2 = zero(eltype(la))
+    @inbounds for i in axes(la, 1)
+        s = sin(ϕl[i])
+        c = cos(ϕl[i])
+        sum1 += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
+        sum2 += (la[i,4] + la[i,5] * Δt) * c + la[i,6] * s
+    end
+    δψl = deg2rad(sum1 * FACTOR_MICROARCSEC)
+    δϵl = deg2rad(sum2 * FACTOR_MICROARCSEC)
 
     ####    Planetary Nutation
     #
@@ -1863,12 +1870,20 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
                      fsa, fur, fne, fpa))
 
     #  Convert from 0.1 μas to radians
-    δψp, δϵp = deg2rad.(
-        (sum(pa[:,1].*sin.(ϕp) .+ pa[:,2].*cos.(ϕp)),
-         sum(pa[:,3].*sin.(ϕp) .+ pa[:,4].*cos.(ϕp)))./3.6e10)
+    sum1 = sum2 = zero(eltype(pa))
+    @inbounds for i in axes(pa, 1)
+        s = sin(ϕp[i])
+        c = cos(ϕp[i])
+        sum1 += pa[i,1] * s + pa[i,2] * c
+        sum2 += pa[i,3] * s + pa[i,4] * c
+    end
+    δψp = deg2rad(sum1 * FACTOR_MICROARCSEC)
+    δϵp = deg2rad(sum2 * FACTOR_MICROARCSEC)
 
     (ψ = δψl + δψp, ϵ = δϵl + δϵp)
 end
+const FACTOR_MICROARCSEC = 1 / 3.6e10
+const FACTOR_DEG2RAD = deg2rad(1 / 3.6e10)
 const iau_2000A_nutation_lunisolar_series_ln = vcat([t.n' for t in iau_2000A_nutation_lunisolar_series]...)
 const iau_2000A_nutation_lunisolar_series_la = vcat([t.a' for t in iau_2000A_nutation_lunisolar_series]...)
 const iau_2000A_nutation_planetary_series_pn = vcat([t.n' for t in iau_2000A_nutation_planetary_series]...)
