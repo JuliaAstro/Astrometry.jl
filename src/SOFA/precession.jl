@@ -1820,7 +1820,19 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     # la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_lunisolar_series]...)
 
     #  Convert from 0.1 μas to radians
-    ϕl = mod2pi.(ln*deg2rad.(rem.(SVector(l, lp, f, d, ω), ARCSECPER2PI)./3600))
+    @inbounds begin
+        arg1 = deg2rad(rem(l, ARCSECPER2PI) / 3600)
+        arg2 = deg2rad(rem(lp, ARCSECPER2PI) / 3600)
+        arg3 = deg2rad(rem(f, ARCSECPER2PI) / 3600)
+        arg4 = deg2rad(rem(d, ARCSECPER2PI) / 3600)
+        arg5 = deg2rad(rem(ω, ARCSECPER2PI) / 3600)
+    end
+    ϕl = Vector{Float64}(undef, size(ln, 1))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        ϕl[i] = mod2pi(angle)
+    end
+
     sum1 = sum2 = zero(eltype(la))
     @inbounds for i in axes(la, 1)
         s = sin(ϕl[i])
@@ -1866,8 +1878,16 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     # println("$(size(pn)),  $(size(pa))")
     # pn = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_planetary_series]...)
     # pa = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_planetary_series]...)
-    ϕp = mod2pi.(pn*SVector(l00, f00, d00, ω00, fme, fve, fea, fma, fju,
-                     fsa, fur, fne, fpa))
+
+    planet_args = (l00, f00, d00, ω00, fme, fve, fea, fma, fju, fsa, fur, fne, fpa)
+    ϕp = Vector{Float64}(undef, size(pn, 1))
+    @inbounds for i in axes(pn, 1)
+        angle = zero(Float64)
+        for j in 1:length(planet_args)
+            angle += pn[i,j] * planet_args[j]
+        end
+        ϕp[i] = mod2pi(angle)
+    end
 
     #  Convert from 0.1 μas to radians
     sum1 = sum2 = zero(eltype(pa))
