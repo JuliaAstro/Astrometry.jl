@@ -1816,10 +1816,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     ω = Polynomial(Ω_2003A...)(Δt)
 
     #  Summation of luni-solar nutation series.
-    ln = iau_2000A_nutation_lunisolar_series_ln
-    la = iau_2000A_nutation_lunisolar_series_la
-    # ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_lunisolar_series]...)
-    # la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_lunisolar_series]...)
+    ln = iau_2000A_nutation_lunisolar_series_n
+    la = iau_2000A_nutation_lunisolar_series_a
 
     #  Convert from 0.1 μas to radians
     @inbounds begin
@@ -1875,11 +1873,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     #  General accumulated precession in longitude (IERS 2003).
     fpa = Polynomial(lge_2003...)(Δt)
     
-    pn = iau_2000A_nutation_planetary_series_pn
-    pa = iau_2000A_nutation_planetary_series_pa
-    # println("$(size(pn)),  $(size(pa))")
-    # pn = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_planetary_series]...)
-    # pa = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_planetary_series]...)
+    pn = iau_2000A_nutation_planetary_series_n
+    pa = iau_2000A_nutation_planetary_series_a
 
     planet_args = (l00, f00, d00, ω00, fme, fve, fea, fma, fju, fsa, fur, fne, fpa)
     ϕp = Vector{Float64}(undef, size(pn, 1))
