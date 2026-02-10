@@ -1904,10 +1904,6 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
 end
 const FACTOR_MICROARCSEC = 1 / 3.6e10
 const FACTOR_DEG2RAD = deg2rad(1 / 3.6e10)
-const iau_2000A_nutation_lunisolar_series_ln = vcat([t.n' for t in iau_2000A_nutation_lunisolar_series]...)
-const iau_2000A_nutation_lunisolar_series_la = vcat([t.a' for t in iau_2000A_nutation_lunisolar_series]...)
-const iau_2000A_nutation_planetary_series_pn = vcat([t.n' for t in iau_2000A_nutation_planetary_series]...)
-const iau_2000A_nutation_planetary_series_pa = vcat([t.a' for t in iau_2000A_nutation_planetary_series]...)
 
 """
     nut00b(day1::AbstractFloat, day2::AbstractFloat)
