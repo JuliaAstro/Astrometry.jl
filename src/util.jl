@@ -103,3 +103,18 @@ end
 """
 proper_motion(object, pmotion, parallax, rvelocity) =
     proper_motion(object, pmotion, parallax, rvelocity, 0., (0., 0., 0.))
+
+
+"""
+   @const_smatrix_from_series name series field
+
+Defines a global constant SMatrix instances with a agiven `name` from
+a `series` and using its `field` name.
+"""
+macro const_smatrix_from_series(name, series, field)
+    return quote
+        local tmp = reduce(vcat, [getfield(t, $(QuoteNode(field)))' for t in $(esc(series))])
+        const $(esc(name)) = SMatrix{size(tmp)...}(tmp...)
+    end
+end
+
