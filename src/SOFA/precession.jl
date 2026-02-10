@@ -3773,24 +3773,37 @@ function s00(day1::AbstractFloat, day2::AbstractFloat, x::AbstractFloat, y::Abst
         #  General precession in longitude
         fapa03(Δt))
 
-    ϕ0 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s0_2000A]...)*ϕ
-    a0 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s0_2000A]...)
-    ϕ1 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s1_2000A]...)*ϕ
-    a1 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s1_2000A]...)
-    ϕ2 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s2_2000A]...)*ϕ
-    a2 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s2_2000A]...)
-    ϕ3 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s3_2000A]...)*ϕ
-    a3 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s3_2000A]...)
-    ϕ4 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s4_2000A]...)*ϕ
-    a4 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s4_2000A]...)
+    ϕ0 = ϕ0_2000As*ϕ
+    a0 = a0_2000As
+    ϕ1 = ϕ1_2000As*ϕ
+    a1 = a1_2000As
+    ϕ2 = ϕ2_2000As*ϕ
+    a2 = a2_2000As
+    ϕ3 = ϕ3_2000As*ϕ
+    a3 = a3_2000As
+    ϕ4 = ϕ4_2000As*ϕ
+    a4 = a4_2000As
 
-    deg2rad(Polynomial(sp_2000A .+ SVector(
-        sum(a0[:,1].*sin.(ϕ0) .+ a0[:,2].*cos.(ϕ0)),
-        sum(a1[:,1].*sin.(ϕ1) .+ a1[:,2].*cos.(ϕ1)),
-        sum(a2[:,1].*sin.(ϕ2) .+ a2[:,2].*cos.(ϕ2)),
-        sum(a3[:,1].*sin.(ϕ3) .+ a3[:,2].*cos.(ϕ3)),
-        sum(a4[:,1].*sin.(ϕ4) .+ a4[:,2].*cos.(ϕ4)),
-        0.)...)(Δt)/3600) - x*y/2.0
+    sum0 = sum1 = sum2 = sum3 = sum4 = zero(eltype(a0))
+
+    @inbounds for i in axes(a0, 1)
+        sum0 += a0[i,1] * sin(ϕ0[i]) + a0[i,2] * cos(ϕ0[i])
+    end
+    @inbounds for i in axes(a1, 1)
+        sum1 += a1[i,1] * sin(ϕ1[i]) + a1[i,2] * cos(ϕ1[i])
+    end
+    @inbounds for i in axes(a2, 1)
+        sum2 += a2[i,1] * sin(ϕ2[i]) + a2[i,2] * cos(ϕ2[i])
+    end
+    @inbounds for i in axes(a3, 1)
+        sum3 += a3[i,1] * sin(ϕ3[i]) + a3[i,2] * cos(ϕ3[i])
+    end
+    @inbounds for i in axes(a4, 1)
+        sum4 += a4[i,1] * sin(ϕ4[i]) + a4[i,2] * cos(ϕ4[i])
+    end
+
+    corrections = SVector(sum0, sum1, sum2, sum3, sum4, 0.0)
+    deg2rad(Polynomial((sp_2000A .+ corrections)...)(Δt) / 3600) - x*y/2.0
 end
 
 """
