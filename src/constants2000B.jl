@@ -103,7 +103,5 @@ const iau_2000B_nutation_lunisolar_series = [
     PeriodicTerms([-1, 0, 0, 0,2],[   1405.0,    0.0,    4.0,   -610.0,   0.0,   2.0]),
     PeriodicTerms([ 1, 1, 2,-2,2],[   1290.0,    0.0,    0.0,   -556.0,   0.0,   0.0])]
 
-tmp = reduce(vcat, [t.n' for t in iau_2000B_nutation_lunisolar_series])
-const iau_2000B_nutation_lunisolar_series_n = SMatrix{size(tmp, 1), size(tmp, 2)}(tmp)
-tmp = reduce(vcat, [t.a' for t in iau_2000B_nutation_lunisolar_series])
-const iau_2000B_nutation_lunisolar_series_a = SMatrix{size(tmp, 1), size(tmp, 2)}(tmp)
+@const_smatrix_from_series ln_2000B_nutation iau_2000B_nutation_lunisolar_series n
+@const_smatrix_from_series la_2000B_nutation iau_2000B_nutation_lunisolar_series a
