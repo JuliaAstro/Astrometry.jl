@@ -1816,8 +1816,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     ω = Polynomial(Ω_2003A...)(Δt)
 
     #  Summation of luni-solar nutation series.
-    ln = iau_2000A_nutation_lunisolar_series_n
-    la = iau_2000A_nutation_lunisolar_series_a
+    ln = ln_2000A_nutation
+    la = la_2000A_nutation
 
     #  Convert from 0.1 μas to radians
     @inbounds begin
@@ -1873,8 +1873,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     #  General accumulated precession in longitude (IERS 2003).
     fpa = Polynomial(lge_2003...)(Δt)
     
-    pn = iau_2000A_nutation_planetary_series_n
-    pa = iau_2000A_nutation_planetary_series_a
+    pn = pn_2000A_nutation
+    pa = pa_2000A_nutation
 
     planet_args = (l00, f00, d00, ω00, fme, fve, fea, fma, fju, fsa, fur, fne, fpa)
     ϕp = Vector{Float64}(undef, size(pn, 1))
@@ -2034,8 +2034,8 @@ function nut00b(day1::AbstractFloat, day2::AbstractFloat)
     ω = Polynomial(Ω_2000B...)(Δt)
 
     #  Summation of luni-solar nutation series.
-    ln = iau_2000B_nutation_lunisolar_series_n
-    la = iau_2000B_nutation_lunisolar_series_a
+    ln = ln_2000B_nutation
+    la = la_2000B_nutation
 
     @inbounds begin
         arg1 = deg2rad(rem(l, ARCSECPER2PI) / 3600)
