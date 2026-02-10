@@ -1698,7 +1698,11 @@ const iau_2000A_nutation_planetary_series = [
     PeriodicTerms([ 0, 2, 2, 2, 0,  0,  2,  0,-2, 0, 0, 0, 0], [    3,   0,    0,  -1])]
 
 # Pre-computed nutation matrices
-const iau_2000A_nutation_lunisolar_series_ln = vcat([t.n' for t in iau_2000A_nutation_lunisolar_series]...)
-const iau_2000A_nutation_lunisolar_series_la = vcat([t.a' for t in iau_2000A_nutation_lunisolar_series]...)
-const iau_2000A_nutation_planetary_series_pn = vcat([t.n' for t in iau_2000A_nutation_planetary_series]...)
-const iau_2000A_nutation_planetary_series_pa = vcat([t.a' for t in iau_2000A_nutation_planetary_series]...)
+tmp = reduce(vcat, [t.n' for t in iau_2000A_nutation_lunisolar_series])
+const iau_2000A_nutation_lunisolar_series_n = SMatrix{size(tmp, 1), size(tmp, 2)}(tmp)
+tmp = reduce(vcat, [t.a' for t in iau_2000A_nutation_lunisolar_series])
+const iau_2000A_nutation_lunisolar_series_a = SMatrix{size(tmp, 1), size(tmp, 2)}(tmp)
+tmp = reduce(vcat, [t.n' for t in iau_2000A_nutation_planetary_series])
+const iau_2000A_nutation_planetary_series_n = SMatrix{size(tmp, 1), size(tmp, 2)}(tmp)
+tmp = reduce(vcat, [t.a' for t in iau_2000A_nutation_planetary_series])
+const iau_2000A_nutation_planetary_series_a = SMatrix{size(tmp, 1), size(tmp, 2)}(tmp)
