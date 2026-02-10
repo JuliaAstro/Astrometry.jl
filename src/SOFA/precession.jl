@@ -1882,7 +1882,7 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     planet_args = (l00, f00, d00, ω00, fme, fve, fea, fma, fju, fsa, fur, fne, fpa)
     ϕp = Vector{Float64}(undef, size(pn, 1))
     @inbounds for i in axes(pn, 1)
-        angle = zero(Float64)
+        angle = zero(eltype(planet_args))
         for j in 1:length(planet_args)
             angle += pn[i,j] * planet_args[j]
         end
