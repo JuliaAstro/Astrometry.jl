@@ -320,15 +320,30 @@ function eect00(day1::F, day2::F) where F<:AbstractFloat
     Δt = ((day1 - JD2000) + day2)/(100*DAYPERYEAR)
 
     #  Fundamental arguments (from IERS Conventions 2003).
-    ϕ  = [fal03(Δt), falp03(Δt), faf03(Δt), fad03(Δt), faom03(Δt), fave03(Δt),
-          fae03(Δt), fapa03(Δt)]
-    ϕ0 = vcat(SVector((t.n' for t in iau_2000_equinox_0_series)...)...)*ϕ
-    a0 = vcat(SVector((t.a' for t in iau_2000_equinox_0_series)...)...)
-    ϕ1 = vcat([t.n' for t in iau_2000_equinox_1_series]...)*ϕ
-    a1 = vcat([t.a' for t in iau_2000_equinox_1_series]...)
+    ϕ = SVector(fal03(Δt), falp03(Δt), faf03(Δt), fad03(Δt), faom03(Δt), fave03(Δt), fae03(Δt), fapa03(Δt))
+
     #  Evaluate the EE complementary terms.
-    deg2rad((sum(a0[:,1].*sin.(ϕ0) .+ a0[:,2].*cos.(ϕ0)) +
-             sum(a1[:,1].*sin.(ϕ1) .+ a1[:,2].*cos.(ϕ1))*Δt)/3600.0)
+    a0 = a0_2000_equinox
+    a1 = a1_2000_equinox
+
+    sum0 = sum1 = zero(eltype(a0))
+    @inbounds for i in axes(a0, 1)
+        angle = zero(eltype(ϕ0_2000_equinox))
+        for j in axes(ϕ0_2000_equinox, 2)
+            angle += ϕ0_2000_equinox[i,j] * ϕ[j]
+        end
+        sum0 += a0[i,1] * sin(angle) + a0[i,2] * cos(angle)
+    end
+
+    @inbounds for i in axes(a1, 1)
+        angle = zero(eltype(ϕ1_2000_equinox))
+        for j in axes(ϕ1_2000_equinox, 2)
+            angle += ϕ1_2000_equinox[i,j] * ϕ[j]
+        end
+        sum1 += a1[i,1] * sin(angle) + a1[i,2] * cos(angle)
+    end
+
+    deg2rad((sum0 + sum1 * Δt) / 3600.0)
 end
 
 """
