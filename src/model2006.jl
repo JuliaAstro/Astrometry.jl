@@ -30,24 +30,37 @@ function iau_2006_cio_locator(date, coord)
         mod2pi(Polynomial(lea_2003...)(Δt)),
         Polynomial(lge_2003...)(Δt))
 
-    ϕ0 = vcat([t.n' for t in iau_2006_equinox_0_series]...)*ϕ
-    a0 = vcat([t.a' for t in iau_2006_equinox_0_series]...)
-    ϕ1 = vcat([t.n' for t in iau_2006_equinox_1_series]...)*ϕ
-    a1 = vcat([t.a' for t in iau_2006_equinox_1_series]...)
-    ϕ2 = vcat([t.n' for t in iau_2006_equinox_2_series]...)*ϕ
-    a2 = vcat([t.a' for t in iau_2006_equinox_2_series]...)
-    ϕ3 = vcat([t.n' for t in iau_2006_equinox_3_series]...)*ϕ
-    a3 = vcat([t.a' for t in iau_2006_equinox_3_series]...)
-    ϕ4 = vcat([t.n' for t in iau_2006_equinox_4_series]...)*ϕ
-    a4 = vcat([t.a' for t in iau_2006_equinox_4_series]...)
+    ϕ0 = ϕ0_2006_equinox*ϕ
+    a0 = a0_2006_equinox
+    ϕ1 = ϕ1_2006_equinox*ϕ
+    a1 = a1_2006_equinox
+    ϕ2 = ϕ2_2006_equinox*ϕ
+    a2 = a2_2006_equinox
+    ϕ3 = ϕ3_2006_equinox*ϕ
+    a3 = a3_2006_equinox
+    ϕ4 = ϕ4_2006_equinox*ϕ
+    a4 = a4_2006_equinox
 
-    deg2rad(Polynomial(cio_s_2006 .+ SVector(
-        sum(a0[:,1].*sin.(ϕ0) .+ a0[:,2].*cos.(ϕ0)),
-        sum(a1[:,1].*sin.(ϕ1) .+ a1[:,2].*cos.(ϕ1)),
-        sum(a2[:,1].*sin.(ϕ2) .+ a2[:,2].*cos.(ϕ2)),
-        sum(a3[:,1].*sin.(ϕ3) .+ a3[:,2].*cos.(ϕ3)),
-        sum(a4[:,1].*sin.(ϕ4) .+ a4[:,2].*cos.(ϕ4)), 0.0)...)(Δt)/3600) -
-            coord[1]*coord[2]/2
+    sum0 = sum1 = sum2 = sum3 = sum4 = zero(eltype(a0))
+
+    @inbounds for i in axes(a0, 1)
+        sum0 += a0[i,1] * sin(ϕ0[i]) + a0[i,2] * cos(ϕ0[i])
+    end
+    @inbounds for i in axes(a1, 1)
+        sum1 += a1[i,1] * sin(ϕ1[i]) + a1[i,2] * cos(ϕ1[i])
+    end
+    @inbounds for i in axes(a2, 1)
+        sum2 += a2[i,1] * sin(ϕ2[i]) + a2[i,2] * cos(ϕ2[i])
+    end
+    @inbounds for i in axes(a3, 1)
+        sum3 += a3[i,1] * sin(ϕ3[i]) + a3[i,2] * cos(ϕ3[i])
+    end
+    @inbounds for i in axes(a4, 1)
+        sum4 += a4[i,1] * sin(ϕ4[i]) + a4[i,2] * cos(ϕ4[i])
+    end
+
+    corrections = SVector(sum0, sum1, sum2, sum3, sum4, 0.0)
+    deg2rad(Polynomial((cio_s_2006 .+ corrections)...)(Δt) / 3600) - coord[1] * coord[2] / 2
 end
 
 function iau_2006_cip_xy(date)
