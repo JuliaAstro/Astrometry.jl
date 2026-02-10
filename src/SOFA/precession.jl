@@ -2034,18 +2034,38 @@ function nut00b(day1::AbstractFloat, day2::AbstractFloat)
     ω = Polynomial(Ω_2000B...)(Δt)
 
     #  Summation of luni-solar nutation series.
-    ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000B_nutation_lunisolar_series]...)
-    la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000B_nutation_lunisolar_series]...)
-    ϕl = mod2pi.(ln*deg2rad.(rem.([l, lp, f, d, ω], ARCSECPER2PI)./3600))
+    ln = iau_2000B_nutation_lunisolar_series_n
+    la = iau_2000B_nutation_lunisolar_series_a
+
+    @inbounds begin
+        arg1 = deg2rad(rem(l, ARCSECPER2PI) / 3600)
+        arg2 = deg2rad(rem(lp, ARCSECPER2PI) / 3600)
+        arg3 = deg2rad(rem(f, ARCSECPER2PI) / 3600)
+        arg4 = deg2rad(rem(d, ARCSECPER2PI) / 3600)
+        arg5 = deg2rad(rem(ω, ARCSECPER2PI) / 3600)
+    end
+
+    sum1 = sum2 = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        angle = mod2pi(angle)
+        s = sin(angle)
+        c = cos(angle)
+        sum1 += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
+        sum2 += (la[i,4] + la[i,5] * Δt) * c + la[i,6] * s
+    end
+
     #  Convert from 0.1 μas to radians
-    δψl, δϵl = deg2rad.(
-        (sum((la[:,1] .+ la[:,2].*Δt).*sin.(ϕl) .+ la[:,3].*cos.(ϕl)),
-         sum((la[:,4] .+ la[:,5].*Δt).*cos.(ϕl) .+ la[:,6].*sin.(ϕl)))./3.6e10)
+    DEG2RAD_FACTOR = deg2rad(1 / 3.6e10)
+    δψl = sum1 * DEG2RAD_FACTOR
+    δϵl = sum2 * DEG2RAD_FACTOR
 
     ####    In lieu of Planetary Nutation
     #
     #  Fixed offset to correct for missing terms in truncated series
-    δψp, δϵp = deg2rad.((ψ_2000B_planet, ϵ_2000B_planet)./3.6e6)
+    DEG2RAD_PLANET_FACTOR = deg2rad(1 / 3.6e6)
+    δψp = ψ_2000B_planet * DEG2RAD_PLANET_FACTOR
+    δϵp = ϵ_2000B_planet * DEG2RAD_PLANET_FACTOR
 
     (ψ = δψl + δψp, ϵ = δϵl + δϵp)
 end
