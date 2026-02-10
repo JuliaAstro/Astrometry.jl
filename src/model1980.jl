@@ -25,16 +25,34 @@ function iau_1980_nutation(date::AbstractFloat)
 
     Δt  = (date - JD2000)/(100*DAYPERYEAR)
     
-    l = 2π*rem.([l0_1980t, l1_1980t, F_1980t, D_1980t, Ω_1980t].*Δt, 1.0) .+
-        deg2rad.([Polynomial(l0_1980...)(Δt), Polynomial(l1_1980...)(Δt),
-                  Polynomial( F_1980...)(Δt), Polynomial( D_1980...)(Δt),
-                  Polynomial( Ω_1980...)(Δt)]./3600.0)
+    l = SVector(
+        2π * rem(l0_1980t * Δt, 1.0) + deg2rad(Polynomial(l0_1980...)(Δt) / 3600.0),
+        2π * rem(l1_1980t * Δt, 1.0) + deg2rad(Polynomial(l1_1980...)(Δt) / 3600.0),
+        2π * rem(F_1980t * Δt, 1.0) + deg2rad(Polynomial(F_1980...)(Δt) / 3600.0),
+        2π * rem(D_1980t * Δt, 1.0) + deg2rad(Polynomial(D_1980...)(Δt) / 3600.0),
+        2π * rem(Ω_1980t * Δt, 1.0) + deg2rad(Polynomial(Ω_1980...)(Δt) / 3600.0)
+    )
 
-    ln = vcat([t.n' for t in iau_1980_nutation_series]...)
-    la = vcat([t.a' for t in iau_1980_nutation_series]...)
-    ϕl = ln*rem2pi.(l, RoundNearest)
-    deg2rad.((sum((la[:,1] .+ la[:,2].*Δt).*sin.(ϕl)),
-              sum((la[:,3] .+ la[:,4].*Δt).*cos.(ϕl)))./3.6e7)
+    ln = n_1980_nutation
+    ln = a_1980_nutation
+
+    sum1 = sum2 = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = zero(eltype(ln))
+        for j in axes(ln, 2)
+            angle += ln[i,j] * rem2pi(l[j], RoundNearest)
+        end
+
+        s = sin(angle)
+        c = cos(angle)
+        sum1 += (la[i,1] + la[i,2] * Δt) * s
+        sum2 += (la[i,3] + la[i,4] * Δt) * c
+    end
+
+    # Convert from 0.1 μas to radians
+    DEG2RAD_FACTOR = deg2rad(1 / 3.6e7)
+    δψl = sum1 * DEG2RAD_FACTOR
+    δϵl = sum2 * DEG2RAD_FACTOR
 end
 
 """
