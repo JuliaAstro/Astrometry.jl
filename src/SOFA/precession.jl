@@ -2217,12 +2217,30 @@ function nut80(day1::AbstractFloat, day2::AbstractFloat)
     ω = deg2rad(Polynomial(Ω_1980...)(Δt)/3600.0) + 2π*rem(Ω_1980t*Δt, 1.0)
 
     #  Summation of luni-solar nutation series.
-    ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_1980_nutation_series]...)
-    la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_1980_nutation_series]...)
-    ϕl = ln*rem2pi.([l, lp, f, d, ω], RoundNearest)
-    #  Convert from 0.1 μas to radians
-    δψl, δϵl = deg2rad.((sum((la[:,1] .+ la[:,2].*Δt).*sin.(ϕl)),
-                         sum((la[:,3] .+ la[:,4].*Δt).*cos.(ϕl)))./3.6e7)
+    ln = n_1980_nutation
+    la = a_1980_nutation
+
+    @inbounds begin
+        arg1 = rem2pi(l, RoundNearest)
+        arg2 = rem2pi(lp, RoundNearest)
+        arg3 = rem2pi(f, RoundNearest)
+        arg4 = rem2pi(d, RoundNearest)
+        arg5 = rem2pi(ω, RoundNearest)
+    end
+
+    sum1 = sum2 = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        s = sin(angle)
+        c = cos(angle)
+        sum1 += (la[i,1] + la[i,2] * Δt) * s
+        sum2 += (la[i,3] + la[i,4] * Δt) * c
+    end
+
+    # Convert from 0.1 μas to radians
+    DEG2RAD_FACTOR = deg2rad(1 / 3.6e7)
+    δψl = sum1 * DEG2RAD_FACTOR
+    δϵl = sum2 * DEG2RAD_FACTOR
 
     (ψ = δψl, ϵ = δϵl)
 end
