@@ -36,11 +36,12 @@ function iau_1980_nutation(date::AbstractFloat)
     ln = n_1980_nutation
     la = a_1980_nutation
 
+    l_rem = rem2pi.(l, RoundNearest)
     sum1 = sum2 = zero(eltype(la))
     @inbounds for i in axes(ln, 1)
         angle = zero(eltype(ln))
         for j in axes(ln, 2)
-            angle += ln[i,j] * rem2pi(l[j], RoundNearest)
+            angle += ln[i,j] * l_rem[j]
         end
 
         s = sin(angle)
@@ -49,10 +50,8 @@ function iau_1980_nutation(date::AbstractFloat)
         sum2 += (la[i,3] + la[i,4] * Δt) * c
     end
 
-    # Convert from 0.1 μas to radians
     DEG2RAD_FACTOR = deg2rad(1 / 3.6e7)
-    δψl = sum1 * DEG2RAD_FACTOR
-    δϵl = sum2 * DEG2RAD_FACTOR
+    (sum1 * DEG2RAD_FACTOR, sum2 * DEG2RAD_FACTOR)
 end
 
 """
