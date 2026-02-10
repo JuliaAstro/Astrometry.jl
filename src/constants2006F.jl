@@ -102,3 +102,15 @@ iau_2006_equinox_3_series = [
 iau_2006_equinox_4_series = [
     #  1- 1
     PeriodicTerms([ 0,  0,  0,  0,  1,  0,  0,  0], [   -0.26e-6,  -0.01e-6 ])]
+
+
+@const_smatrix_from_series ϕ0_2006_equinox iau_2006_equinox_0_series n
+@const_smatrix_from_series a0_2006_equinox iau_2006_equinox_0_series a
+@const_smatrix_from_series ϕ1_2006_equinox iau_2006_equinox_1_series n
+@const_smatrix_from_series a1_2006_equinox iau_2006_equinox_1_series a
+@const_smatrix_from_series ϕ2_2006_equinox iau_2006_equinox_2_series n
+@const_smatrix_from_series a2_2006_equinox iau_2006_equinox_2_series a
+@const_smatrix_from_series ϕ3_2006_equinox iau_2006_equinox_3_series n
+@const_smatrix_from_series a3_2006_equinox iau_2006_equinox_3_series a
+@const_smatrix_from_series ϕ4_2006_equinox iau_2006_equinox_4_series n
+@const_smatrix_from_series a4_2006_equinox iau_2006_equinox_4_series a
