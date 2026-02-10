@@ -34,7 +34,7 @@ function iau_1980_nutation(date::AbstractFloat)
     )
 
     ln = n_1980_nutation
-    ln = a_1980_nutation
+    la = a_1980_nutation
 
     sum1 = sum2 = zero(eltype(la))
     @inbounds for i in axes(ln, 1)
