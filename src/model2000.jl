@@ -212,22 +212,36 @@ function iau_2000b_gst(ut, tt)
 end
 
 function iau_2000b_nutation(date)
-
     Δt = (date - JD2000)/(100*DAYPERYEAR)
 
     ###  Luni-solar Nutation
-    
-    # Fundamental (Delauney) arguments from Simon et al. (1994)
-    ϕ = deg2rad(1/3600).*rem.([Polynomial(l0_2000B...)(Δt),
-        Polynomial(l1_2000B...)(Δt), Polynomial( F_2000B...)(Δt),
-        Polynomial( D_2000B...)(Δt), Polynomial( Ω_2000B...)(Δt)], ARCSECPER2PI)
+    #
+    # Fundamental (Delaunay) arguments from Simon et al. (1994)
+    DEG_ARCSEC = deg2rad(1/3600)
+    @inbounds begin
+        arg1 = DEG_ARCSEC * rem(Polynomial(l0_2000B...)(Δt), ARCSECPER2PI)
+        arg2 = DEG_ARCSEC * rem(Polynomial(l1_2000B...)(Δt), ARCSECPER2PI)
+        arg3 = DEG_ARCSEC * rem(Polynomial(F_2000B...)(Δt), ARCSECPER2PI)
+        arg4 = DEG_ARCSEC * rem(Polynomial(D_2000B...)(Δt), ARCSECPER2PI)
+        arg5 = DEG_ARCSEC * rem(Polynomial(Ω_2000B...)(Δt), ARCSECPER2PI)
+    end
 
-    lϕ = rem2pi.(vcat([t.n' for t in iau_2000B_nutation_lunisolar_series]...)*ϕ, RoundToZero)
-    la = vcat([t.a' for t in iau_2000B_nutation_lunisolar_series]...)
-    ψl = sum((la[:,1] .+ la[:,2].*Δt).*sin.(lϕ) .+ la[:,3].*cos.(lϕ))
-    ϵl = sum(la[:,6].*sin.(lϕ) .+ (la[:,4] .+ la[:,5].*Δt).*cos.(lϕ))
+    ln = ln_2000B_nutation
+    la = la_2000B_nutation
+    ψl = ϵl = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        angle = rem2pi(angle, RoundToZero)
 
-    deg2rad.((ψl + 1e4*ψ_2000B_planet, ϵl + 1e4*ϵ_2000B_planet)./3.6e10)
+        s = sin(angle)
+        c = cos(angle)
+        ψl += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
+        ϵl += la[i,6] * s + (la[i,4] + la[i,5] * Δt) * c
+    end
+
+    # Convert from 0.1 μas to radians and add planetary correction
+    FACTOR = deg2rad(1 / 3.6e10)
+    ((ψl + 1e4 * ψ_2000B_planet) * FACTOR, (ϵl + 1e4 * ϵ_2000B_planet) * FACTOR)
 end
 
 function iau_2000b_xys(date)
