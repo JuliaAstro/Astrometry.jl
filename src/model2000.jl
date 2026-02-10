@@ -24,10 +24,10 @@ function iau_2000_equinox_complement(date)
         Polynomial( lve_2003...)(Δt), Polynomial( lea_2003...)(Δt),
         Polynomial( lge_2003...)(Δt)])
     
-    en0 = vcat([t.n' for t in iau_2000_equinox_0_series]...)
-    ea0 = vcat([t.a' for t in iau_2000_equinox_0_series]...)
-    en1 = vcat([t.n' for t in iau_2000_equinox_1_series]...)
-    ea1 = vcat([t.a' for t in iau_2000_equinox_1_series]...)
+    en0 = ϕ0_2000_equinox
+    ea0 = a0_2000_equinox
+    en1 = ϕ1_2000_equinox
+    ea1 = a1_2000_equinox
     deg2rad((sum(ea0[:,1].*sin.(en0*ϕ) .+ ea0[:,2].*cos.(en0*ϕ)) +
              sum(ea1[:,1].*sin.(en1*ϕ) .+ ea1[:,2].*cos.(en1*ϕ))*Δt)/3600)
 end
