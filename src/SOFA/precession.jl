@@ -1798,6 +1798,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     #   Interval between fundamental data J2000.0 and given date (JC.)
     Δt = ((day1 - JD2000) + day2)/(100*DAYPERYEAR)
 
+    FACTOR_MICROARCSEC = 1 / 3.6e10
+
     ####    Luni-Solar Nutation
     #
     #  Fundamental (Delaunay) arguments
@@ -1902,8 +1904,6 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
 
     (ψ = δψl + δψp, ϵ = δϵl + δϵp)
 end
-const FACTOR_MICROARCSEC = 1 / 3.6e10
-const FACTOR_DEG2RAD = deg2rad(1 / 3.6e10)
 
 """
     nut00b(day1::AbstractFloat, day2::AbstractFloat)
