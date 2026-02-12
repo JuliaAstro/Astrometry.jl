@@ -102,3 +102,6 @@ const iau_2000B_nutation_lunisolar_series = [
     PeriodicTerms([-2, 0, 2, 2,2],[   1383.0,    0.0,   -2.0,   -594.0,   0.0,  -2.0]),
     PeriodicTerms([-1, 0, 0, 0,2],[   1405.0,    0.0,    4.0,   -610.0,   0.0,   2.0]),
     PeriodicTerms([ 1, 1, 2,-2,2],[   1290.0,    0.0,    0.0,   -556.0,   0.0,   0.0])]
+
+@const_smatrix_from_series ln_2000B_nutation iau_2000B_nutation_lunisolar_series n
+@const_smatrix_from_series la_2000B_nutation iau_2000B_nutation_lunisolar_series a

@@ -1798,6 +1798,8 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     #   Interval between fundamental data J2000.0 and given date (JC.)
     Δt = ((day1 - JD2000) + day2)/(100*DAYPERYEAR)
 
+    FACTOR_MICROARCSEC = 1 / 3.6e10
+
     ####    Luni-Solar Nutation
     #
     #  Fundamental (Delaunay) arguments
@@ -1814,15 +1816,32 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     ω = Polynomial(Ω_2003A...)(Δt)
 
     #  Summation of luni-solar nutation series.
-    ln = vcat([t.n' for t in iau_2000A_nutation_lunisolar_series]...)
-    la = vcat([t.a' for t in iau_2000A_nutation_lunisolar_series]...)
-    # ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_lunisolar_series]...)
-    # la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_lunisolar_series]...)
-    ϕl = mod2pi.(ln*deg2rad.(rem.(SVector(l, lp, f, d, ω), ARCSECPER2PI)./3600))
+    ln = ln_2000A_nutation
+    la = la_2000A_nutation
+
     #  Convert from 0.1 μas to radians
-    δψl, δϵl = deg2rad.(
-        (sum((la[:,1] .+ la[:,2].*Δt).*sin.(ϕl) .+ la[:,3].*cos.(ϕl)),
-         sum((la[:,4] .+ la[:,5].*Δt).*cos.(ϕl) .+ la[:,6].*sin.(ϕl)))./3.6e10)
+    @inbounds begin
+        arg1 = deg2rad(rem(l, ARCSECPER2PI) / 3600)
+        arg2 = deg2rad(rem(lp, ARCSECPER2PI) / 3600)
+        arg3 = deg2rad(rem(f, ARCSECPER2PI) / 3600)
+        arg4 = deg2rad(rem(d, ARCSECPER2PI) / 3600)
+        arg5 = deg2rad(rem(ω, ARCSECPER2PI) / 3600)
+    end
+    ϕl = Vector{Float64}(undef, size(ln, 1))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        ϕl[i] = mod2pi(angle)
+    end
+
+    sum1 = sum2 = zero(eltype(la))
+    @inbounds for i in axes(la, 1)
+        s = sin(ϕl[i])
+        c = cos(ϕl[i])
+        sum1 += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
+        sum2 += (la[i,4] + la[i,5] * Δt) * c + la[i,6] * s
+    end
+    δψl = deg2rad(sum1 * FACTOR_MICROARCSEC)
+    δϵl = deg2rad(sum2 * FACTOR_MICROARCSEC)
 
     ####    Planetary Nutation
     #
@@ -1854,18 +1873,29 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     #  General accumulated precession in longitude (IERS 2003).
     fpa = Polynomial(lge_2003...)(Δt)
     
-    pn = vcat([t.n' for t in iau_2000A_nutation_planetary_series]...)
-    pa = vcat([t.a' for t in iau_2000A_nutation_planetary_series]...)
-    # println("$(size(pn)),  $(size(pa))")
-    # pn = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000A_nutation_planetary_series]...)
-    # pa = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000A_nutation_planetary_series]...)
-    ϕp = mod2pi.(pn*SVector(l00, f00, d00, ω00, fme, fve, fea, fma, fju,
-                     fsa, fur, fne, fpa))
+    pn = pn_2000A_nutation
+    pa = pa_2000A_nutation
+
+    planet_args = (l00, f00, d00, ω00, fme, fve, fea, fma, fju, fsa, fur, fne, fpa)
+    ϕp = Vector{Float64}(undef, size(pn, 1))
+    @inbounds for i in axes(pn, 1)
+        angle = zero(eltype(planet_args))
+        for j in 1:length(planet_args)
+            angle += pn[i,j] * planet_args[j]
+        end
+        ϕp[i] = mod2pi(angle)
+    end
 
     #  Convert from 0.1 μas to radians
-    δψp, δϵp = deg2rad.(
-        (sum(pa[:,1].*sin.(ϕp) .+ pa[:,2].*cos.(ϕp)),
-         sum(pa[:,3].*sin.(ϕp) .+ pa[:,4].*cos.(ϕp)))./3.6e10)
+    sum1 = sum2 = zero(eltype(pa))
+    @inbounds for i in axes(pa, 1)
+        s = sin(ϕp[i])
+        c = cos(ϕp[i])
+        sum1 += pa[i,1] * s + pa[i,2] * c
+        sum2 += pa[i,3] * s + pa[i,4] * c
+    end
+    δψp = deg2rad(sum1 * FACTOR_MICROARCSEC)
+    δϵp = deg2rad(sum2 * FACTOR_MICROARCSEC)
 
     (ψ = δψl + δψp, ϵ = δϵl + δϵp)
 end
@@ -2004,18 +2034,38 @@ function nut00b(day1::AbstractFloat, day2::AbstractFloat)
     ω = Polynomial(Ω_2000B...)(Δt)
 
     #  Summation of luni-solar nutation series.
-    ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2000B_nutation_lunisolar_series]...)
-    la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2000B_nutation_lunisolar_series]...)
-    ϕl = mod2pi.(ln*deg2rad.(rem.([l, lp, f, d, ω], ARCSECPER2PI)./3600))
+    ln = ln_2000B_nutation
+    la = la_2000B_nutation
+
+    @inbounds begin
+        arg1 = deg2rad(rem(l, ARCSECPER2PI) / 3600)
+        arg2 = deg2rad(rem(lp, ARCSECPER2PI) / 3600)
+        arg3 = deg2rad(rem(f, ARCSECPER2PI) / 3600)
+        arg4 = deg2rad(rem(d, ARCSECPER2PI) / 3600)
+        arg5 = deg2rad(rem(ω, ARCSECPER2PI) / 3600)
+    end
+
+    sum1 = sum2 = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        angle = mod2pi(angle)
+        s = sin(angle)
+        c = cos(angle)
+        sum1 += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
+        sum2 += (la[i,4] + la[i,5] * Δt) * c + la[i,6] * s
+    end
+
     #  Convert from 0.1 μas to radians
-    δψl, δϵl = deg2rad.(
-        (sum((la[:,1] .+ la[:,2].*Δt).*sin.(ϕl) .+ la[:,3].*cos.(ϕl)),
-         sum((la[:,4] .+ la[:,5].*Δt).*cos.(ϕl) .+ la[:,6].*sin.(ϕl)))./3.6e10)
+    DEG2RAD_FACTOR = deg2rad(1 / 3.6e10)
+    δψl = sum1 * DEG2RAD_FACTOR
+    δϵl = sum2 * DEG2RAD_FACTOR
 
     ####    In lieu of Planetary Nutation
     #
     #  Fixed offset to correct for missing terms in truncated series
-    δψp, δϵp = deg2rad.((ψ_2000B_planet, ϵ_2000B_planet)./3.6e6)
+    DEG2RAD_PLANET_FACTOR = deg2rad(1 / 3.6e6)
+    δψp = ψ_2000B_planet * DEG2RAD_PLANET_FACTOR
+    δϵp = ϵ_2000B_planet * DEG2RAD_PLANET_FACTOR
 
     (ψ = δψl + δψp, ϵ = δϵl + δϵp)
 end
@@ -2167,12 +2217,30 @@ function nut80(day1::AbstractFloat, day2::AbstractFloat)
     ω = deg2rad(Polynomial(Ω_1980...)(Δt)/3600.0) + 2π*rem(Ω_1980t*Δt, 1.0)
 
     #  Summation of luni-solar nutation series.
-    ln = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_1980_nutation_series]...)
-    la = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_1980_nutation_series]...)
-    ϕl = ln*rem2pi.([l, lp, f, d, ω], RoundNearest)
-    #  Convert from 0.1 μas to radians
-    δψl, δϵl = deg2rad.((sum((la[:,1] .+ la[:,2].*Δt).*sin.(ϕl)),
-                         sum((la[:,3] .+ la[:,4].*Δt).*cos.(ϕl)))./3.6e7)
+    ln = n_1980_nutation
+    la = a_1980_nutation
+
+    @inbounds begin
+        arg1 = rem2pi(l, RoundNearest)
+        arg2 = rem2pi(lp, RoundNearest)
+        arg3 = rem2pi(f, RoundNearest)
+        arg4 = rem2pi(d, RoundNearest)
+        arg5 = rem2pi(ω, RoundNearest)
+    end
+
+    sum1 = sum2 = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        s = sin(angle)
+        c = cos(angle)
+        sum1 += (la[i,1] + la[i,2] * Δt) * s
+        sum2 += (la[i,3] + la[i,4] * Δt) * c
+    end
+
+    # Convert from 0.1 μas to radians
+    DEG2RAD_FACTOR = deg2rad(1 / 3.6e7)
+    δψl = sum1 * DEG2RAD_FACTOR
+    δϵl = sum2 * DEG2RAD_FACTOR
 
     (ψ = δψl, ϵ = δϵl)
 end
@@ -3723,24 +3791,37 @@ function s00(day1::AbstractFloat, day2::AbstractFloat, x::AbstractFloat, y::Abst
         #  General precession in longitude
         fapa03(Δt))
 
-    ϕ0 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s0_2000A]...)*ϕ
-    a0 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s0_2000A]...)
-    ϕ1 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s1_2000A]...)*ϕ
-    a1 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s1_2000A]...)
-    ϕ2 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s2_2000A]...)*ϕ
-    a2 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s2_2000A]...)
-    ϕ3 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s3_2000A]...)*ϕ
-    a3 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s3_2000A]...)
-    ϕ4 = vcat([SMatrix{1, length(t.n)}(t.n) for t in s4_2000A]...)*ϕ
-    a4 = vcat([SMatrix{1, length(t.a)}(t.a) for t in s4_2000A]...)
+    ϕ0 = ϕ0_2000As*ϕ
+    a0 = a0_2000As
+    ϕ1 = ϕ1_2000As*ϕ
+    a1 = a1_2000As
+    ϕ2 = ϕ2_2000As*ϕ
+    a2 = a2_2000As
+    ϕ3 = ϕ3_2000As*ϕ
+    a3 = a3_2000As
+    ϕ4 = ϕ4_2000As*ϕ
+    a4 = a4_2000As
 
-    deg2rad(Polynomial(sp_2000A .+ SVector(
-        sum(a0[:,1].*sin.(ϕ0) .+ a0[:,2].*cos.(ϕ0)),
-        sum(a1[:,1].*sin.(ϕ1) .+ a1[:,2].*cos.(ϕ1)),
-        sum(a2[:,1].*sin.(ϕ2) .+ a2[:,2].*cos.(ϕ2)),
-        sum(a3[:,1].*sin.(ϕ3) .+ a3[:,2].*cos.(ϕ3)),
-        sum(a4[:,1].*sin.(ϕ4) .+ a4[:,2].*cos.(ϕ4)),
-        0.)...)(Δt)/3600) - x*y/2.0
+    sum0 = sum1 = sum2 = sum3 = sum4 = zero(eltype(a0))
+
+    @inbounds for i in axes(a0, 1)
+        sum0 += a0[i,1] * sin(ϕ0[i]) + a0[i,2] * cos(ϕ0[i])
+    end
+    @inbounds for i in axes(a1, 1)
+        sum1 += a1[i,1] * sin(ϕ1[i]) + a1[i,2] * cos(ϕ1[i])
+    end
+    @inbounds for i in axes(a2, 1)
+        sum2 += a2[i,1] * sin(ϕ2[i]) + a2[i,2] * cos(ϕ2[i])
+    end
+    @inbounds for i in axes(a3, 1)
+        sum3 += a3[i,1] * sin(ϕ3[i]) + a3[i,2] * cos(ϕ3[i])
+    end
+    @inbounds for i in axes(a4, 1)
+        sum4 += a4[i,1] * sin(ϕ4[i]) + a4[i,2] * cos(ϕ4[i])
+    end
+
+    corrections = SVector(sum0, sum1, sum2, sum3, sum4, 0.0)
+    deg2rad(Polynomial((sp_2000A .+ corrections)...)(Δt) / 3600) - x*y/2.0
 end
 
 """
@@ -3966,24 +4047,38 @@ function s06(day1::AbstractFloat, day2::AbstractFloat, x::AbstractFloat, y::Abst
         #  General precession in longitude
         fapa03(Δt))
 
-    ϕ0 = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2006_equinox_0_series]...)*ϕ
-    a0 = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2006_equinox_0_series]...)
-    ϕ1 = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2006_equinox_1_series]...)*ϕ
-    a1 = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2006_equinox_1_series]...)
-    ϕ2 = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2006_equinox_2_series]...)*ϕ
-    a2 = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2006_equinox_2_series]...)
-    ϕ3 = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2006_equinox_3_series]...)*ϕ
-    a3 = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2006_equinox_3_series]...)
-    ϕ4 = vcat([SMatrix{1, length(t.n)}(t.n) for t in iau_2006_equinox_4_series]...)*ϕ
-    a4 = vcat([SMatrix{1, length(t.a)}(t.a) for t in iau_2006_equinox_4_series]...)
+    # a2_2006_equinox
+    ϕ0 = ϕ0_2006_equinox*ϕ
+    a0 = a0_2006_equinox
+    ϕ1 = ϕ1_2006_equinox*ϕ
+    a1 = a1_2006_equinox
+    ϕ2 = ϕ2_2006_equinox*ϕ
+    a2 = a2_2006_equinox
+    ϕ3 = ϕ3_2006_equinox*ϕ
+    a3 = a3_2006_equinox
+    ϕ4 = ϕ4_2006_equinox*ϕ
+    a4 = a4_2006_equinox
 
-    deg2rad(Polynomial(cio_s_2006 .+ SVector(
-        sum(a0[:,1].*sin.(ϕ0) .+ a0[:,2].*cos.(ϕ0)),
-        sum(a1[:,1].*sin.(ϕ1) .+ a1[:,2].*cos.(ϕ1)),
-        sum(a2[:,1].*sin.(ϕ2) .+ a2[:,2].*cos.(ϕ2)),
-        sum(a3[:,1].*sin.(ϕ3) .+ a3[:,2].*cos.(ϕ3)),
-        sum(a4[:,1].*sin.(ϕ4) .+ a4[:,2].*cos.(ϕ4)),
-        0.)...)(Δt)/3600) - x*y/2.0
+    sum0 = sum1 = sum2 = sum3 = sum4 = zero(eltype(a0))
+
+    @inbounds for i in axes(a0, 1)
+        sum0 += a0[i,1] * sin(ϕ0[i]) + a0[i,2] * cos(ϕ0[i])
+    end
+    @inbounds for i in axes(a1, 1)
+        sum1 += a1[i,1] * sin(ϕ1[i]) + a1[i,2] * cos(ϕ1[i])
+    end
+    @inbounds for i in axes(a2, 1)
+        sum2 += a2[i,1] * sin(ϕ2[i]) + a2[i,2] * cos(ϕ2[i])
+    end
+    @inbounds for i in axes(a3, 1)
+        sum3 += a3[i,1] * sin(ϕ3[i]) + a3[i,2] * cos(ϕ3[i])
+    end
+    @inbounds for i in axes(a4, 1)
+        sum4 += a4[i,1] * sin(ϕ4[i]) + a4[i,2] * cos(ϕ4[i])
+    end
+
+    corrections = SVector(sum0, sum1, sum2, sum3, sum4, 0.0)
+    deg2rad(Polynomial((cio_s_2006 .+ corrections)...)(Δt) / 3600) - x*y/2.0
 end
 
 """

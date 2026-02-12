@@ -141,6 +141,8 @@ const s4_2000A = [
     PeriodicTerms([0,  0,  0,  0,  1,  0,  0,  0], [   -0.26e-6,  -0.01e-6])]
 
 
+# TODO: the following iau_2000* data may need to be moved to constants2000.jl instead
+
 #   Complementary equinox model constants
 #   Table of coefficients of [l, l', F, D, Ω, LVe, LE, pA], [sin, cos]
 const iau_2000_equinox_0_series = [
@@ -184,6 +186,22 @@ const iau_2000_equinox_0_series = [
 
 const iau_2000_equinox_1_series = [
     PeriodicTerms([ 0,  0,  0,  0,  1,  0,  0,  0], [  -0.87e-6,  0.00e-6])]
+
+@const_smatrix_from_series ϕ0_2000_equinox iau_2000_equinox_0_series n
+@const_smatrix_from_series a0_2000_equinox iau_2000_equinox_0_series a
+@const_smatrix_from_series ϕ1_2000_equinox iau_2000_equinox_1_series n
+@const_smatrix_from_series a1_2000_equinox iau_2000_equinox_1_series a
+
+@const_smatrix_from_series ϕ0_2000As s0_2000A n
+@const_smatrix_from_series a0_2000As s0_2000A a
+@const_smatrix_from_series ϕ1_2000As s1_2000A n
+@const_smatrix_from_series a1_2000As s1_2000A a
+@const_smatrix_from_series ϕ2_2000As s2_2000A n
+@const_smatrix_from_series a2_2000As s2_2000A a
+@const_smatrix_from_series ϕ3_2000As s3_2000A n
+@const_smatrix_from_series a3_2000As s3_2000A a
+@const_smatrix_from_series ϕ4_2000As s4_2000A n
+@const_smatrix_from_series a4_2000As s4_2000A a
 
 #   Luni-solar nutation model constants
 #   (see Matthews, Herring, & Buffet 2002)
@@ -1696,3 +1714,9 @@ const iau_2000A_nutation_planetary_series = [
     PeriodicTerms([-1, 2, 2, 2, 0,  3, -3,  0, 0, 0, 0, 0, 0], [    7,   0,    0,  -3]),
     PeriodicTerms([ 1, 2, 0, 2, 0,  1, -1,  0, 0, 0, 0, 0, 0], [    3,   0,    0,  -1]),
     PeriodicTerms([ 0, 2, 2, 2, 0,  0,  2,  0,-2, 0, 0, 0, 0], [    3,   0,    0,  -1])]
+
+# Pre-computed nutation matrices
+@const_smatrix_from_series ln_2000A_nutation iau_2000A_nutation_lunisolar_series n
+@const_smatrix_from_series la_2000A_nutation iau_2000A_nutation_lunisolar_series a
+@const_smatrix_from_series pn_2000A_nutation iau_2000A_nutation_planetary_series n
+@const_smatrix_from_series pa_2000A_nutation iau_2000A_nutation_planetary_series a

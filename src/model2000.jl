@@ -24,10 +24,10 @@ function iau_2000_equinox_complement(date)
         Polynomial( lve_2003...)(Δt), Polynomial( lea_2003...)(Δt),
         Polynomial( lge_2003...)(Δt)])
     
-    en0 = vcat([t.n' for t in iau_2000_equinox_0_series]...)
-    ea0 = vcat([t.a' for t in iau_2000_equinox_0_series]...)
-    en1 = vcat([t.n' for t in iau_2000_equinox_1_series]...)
-    ea1 = vcat([t.a' for t in iau_2000_equinox_1_series]...)
+    en0 = ϕ0_2000_equinox
+    ea0 = a0_2000_equinox
+    en1 = ϕ1_2000_equinox
+    ea1 = a1_2000_equinox
     deg2rad((sum(ea0[:,1].*sin.(en0*ϕ) .+ ea0[:,2].*cos.(en0*ϕ)) +
              sum(ea1[:,1].*sin.(en1*ϕ) .+ ea1[:,2].*cos.(en1*ϕ))*Δt)/3600)
 end
@@ -129,39 +129,69 @@ function iau_2000a_gst(ut, tt)
 end
 
 function iau_2000a_nutation(date)
-
     Δt = (date - JD2000)/(100*DAYPERYEAR)
-
+    
     ###  Luni-solar Nutation
     
-    # Fundamental (Delauney) arguments
-    ϕ = deg2rad.(rem.(
-        [Polynomial(l0_2003A...)(Δt), Polynomial(l1_2000A...)(Δt),
-         Polynomial( F_2003A...)(Δt), Polynomial( D_2000A...)(Δt),
-         Polynomial( Ω_2003A...)(Δt)], ARCSECPER2PI)/3600)
+    # Fundamental (Delaunay) arguments
+    @inbounds begin
+        arg1 = deg2rad(rem(Polynomial(l0_2003A...)(Δt), ARCSECPER2PI) / 3600)
+        arg2 = deg2rad(rem(Polynomial(l1_2000A...)(Δt), ARCSECPER2PI) / 3600)
+        arg3 = deg2rad(rem(Polynomial(F_2003A...)(Δt), ARCSECPER2PI) / 3600)
+        arg4 = deg2rad(rem(Polynomial(D_2000A...)(Δt), ARCSECPER2PI) / 3600)
+        arg5 = deg2rad(rem(Polynomial(Ω_2003A...)(Δt), ARCSECPER2PI) / 3600)
+    end
+    
+    ln = ln_2000A_nutation
+    la = la_2000A_nutation
+    ψl = ϵl = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        angle = rem2pi(angle, RoundToZero)
 
-    lϕ  = rem2pi.(vcat([t.n' for t in iau_2000A_nutation_lunisolar_series]...)*ϕ, RoundToZero)
-    la  = vcat([t.a' for t in iau_2000A_nutation_lunisolar_series]...)
-    ψl = sum((la[:,1] .+ la[:,2].*Δt).*sin.(lϕ) .+ la[:,3].*cos.(lϕ))
-    ϵl = sum(la[:,6].*sin.(lϕ) .+ (la[:,4] .+ la[:,5].*Δt).*cos.(lϕ))
-
+        s = sin(angle)
+        c = cos(angle)
+        ψl += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
+        ϵl += la[i,6] * s + (la[i,4] + la[i,5] * Δt) * c
+    end
+    
     ###  Planetary Nutation
+    
+    planet_args = SVector(
+        rem2pi(Polynomial(l0_2000A_planet...)(Δt), RoundToZero),
+        rem2pi(Polynomial(F_2000A_planet...)(Δt), RoundToZero),
+        rem2pi(Polynomial(D_2000A_planet...)(Δt), RoundToZero),
+        rem2pi(Polynomial(Ω_2000A_planet...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lme_2003...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lve_2003...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lea_2003...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lma_2003...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lju_2003...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lsa_2003...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lur_2003...)(Δt), RoundToZero),
+        rem2pi(Polynomial(lne_2003mhb...)(Δt), RoundToZero),
+        Polynomial(lge_2003...)(Δt)
+    )
+    
+    pn = pn_2000A_nutation
+    pa = pa_2000A_nutation
+    ψp = ϵp = zero(eltype(pa))
+    @inbounds for i in axes(pn, 1)
+        angle = zero(eltype(pn))
+        for j in 1:13
+            angle += pn[i,j] * planet_args[j]
+        end
+        angle = rem2pi(angle, RoundToZero)
 
-    ϕ = rem2pi.([
-        Polynomial(l0_2000A_planet...)(Δt), Polynomial( F_2000A_planet...)(Δt),
-        Polynomial( D_2000A_planet...)(Δt), Polynomial( Ω_2000A_planet...)(Δt),
-        Polynomial(lme_2003...)(Δt), Polynomial(lve_2003...)(Δt),
-        Polynomial(lea_2003...)(Δt), Polynomial(lma_2003...)(Δt),
-        Polynomial(lju_2003...)(Δt), Polynomial(lsa_2003...)(Δt),
-        Polynomial(lur_2003...)(Δt), Polynomial(lne_2003mhb...)(Δt)], RoundToZero)
-    push!(ϕ, Polynomial(lge_2003...)(Δt))
-
-    pϕ = rem2pi.(vcat([t.n' for t in iau_2000A_nutation_planetary_series]...)*ϕ, RoundToZero)
-    pa = vcat([t.a' for t in iau_2000A_nutation_planetary_series]...)
-    ψp = sum(pa[:,1].*sin.(pϕ) .+ pa[:,2].*cos.(pϕ))
-    ϵp = sum(pa[:,3].*sin.(pϕ) .+ pa[:,4].*cos.(pϕ))
-
-    deg2rad.((ψl + ψp, ϵl + ϵp)./3.6e10)
+        s = sin(angle)
+        c = cos(angle)
+        ψp += pa[i,1] * s + pa[i,2] * c
+        ϵp += pa[i,3] * s + pa[i,4] * c
+    end
+    
+    # Convert from 0.1 μas to radians
+    FACTOR = deg2rad(1 / 3.6e10)
+    ((ψl + ψp) * FACTOR, (ϵl + ϵp) * FACTOR)
 end
 
 function iau_2000a_xys(date)
@@ -182,22 +212,36 @@ function iau_2000b_gst(ut, tt)
 end
 
 function iau_2000b_nutation(date)
-
     Δt = (date - JD2000)/(100*DAYPERYEAR)
 
     ###  Luni-solar Nutation
-    
-    # Fundamental (Delauney) arguments from Simon et al. (1994)
-    ϕ = deg2rad(1/3600).*rem.([Polynomial(l0_2000B...)(Δt),
-        Polynomial(l1_2000B...)(Δt), Polynomial( F_2000B...)(Δt),
-        Polynomial( D_2000B...)(Δt), Polynomial( Ω_2000B...)(Δt)], ARCSECPER2PI)
+    #
+    # Fundamental (Delaunay) arguments from Simon et al. (1994)
+    DEG_ARCSEC = deg2rad(1/3600)
+    @inbounds begin
+        arg1 = DEG_ARCSEC * rem(Polynomial(l0_2000B...)(Δt), ARCSECPER2PI)
+        arg2 = DEG_ARCSEC * rem(Polynomial(l1_2000B...)(Δt), ARCSECPER2PI)
+        arg3 = DEG_ARCSEC * rem(Polynomial(F_2000B...)(Δt), ARCSECPER2PI)
+        arg4 = DEG_ARCSEC * rem(Polynomial(D_2000B...)(Δt), ARCSECPER2PI)
+        arg5 = DEG_ARCSEC * rem(Polynomial(Ω_2000B...)(Δt), ARCSECPER2PI)
+    end
 
-    lϕ = rem2pi.(vcat([t.n' for t in iau_2000B_nutation_lunisolar_series]...)*ϕ, RoundToZero)
-    la = vcat([t.a' for t in iau_2000B_nutation_lunisolar_series]...)
-    ψl = sum((la[:,1] .+ la[:,2].*Δt).*sin.(lϕ) .+ la[:,3].*cos.(lϕ))
-    ϵl = sum(la[:,6].*sin.(lϕ) .+ (la[:,4] .+ la[:,5].*Δt).*cos.(lϕ))
+    ln = ln_2000B_nutation
+    la = la_2000B_nutation
+    ψl = ϵl = zero(eltype(la))
+    @inbounds for i in axes(ln, 1)
+        angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
+        angle = rem2pi(angle, RoundToZero)
 
-    deg2rad.((ψl + 1e4*ψ_2000B_planet, ϵl + 1e4*ϵ_2000B_planet)./3.6e10)
+        s = sin(angle)
+        c = cos(angle)
+        ψl += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
+        ϵl += la[i,6] * s + (la[i,4] + la[i,5] * Δt) * c
+    end
+
+    # Convert from 0.1 μas to radians and add planetary correction
+    FACTOR = deg2rad(1 / 3.6e10)
+    ((ψl + 1e4 * ψ_2000B_planet) * FACTOR, (ϵl + 1e4 * ϵ_2000B_planet) * FACTOR)
 end
 
 function iau_2000b_xys(date)

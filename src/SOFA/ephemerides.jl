@@ -227,13 +227,13 @@ function moon98(day1::AbstractFloat, day2::AbstractFloat)
     de = Polynomial(SVector(1., 2.).*efac[2:3]...)(Δt)
 
     #  Arange matrices for vector operations.
-    ln  = vcat([SMatrix{1, length(l.n)}(l.n) for l in lr_1998]...)
-    la  = vcat([SMatrix{1, length(l.a)}(l.a) for l in lr_1998]...)
+    ln  = lr_1998_n
+    la  = lr_1998_a
     lre  = [abs(m) == 2 ? e*e    : (abs(m) == 1 ? e  : 1.) for m in ln[:,2]]
     dlre = [abs(m) == 2 ? 2*e*de : (abs(m) == 1 ? de : 0.) for m in ln[:,2]]
 
-    bn   = vcat([SMatrix{1, length(b.n)}(b.n) for b in b_1998]...)
-    ba   = vcat([SMatrix{1, length(b.a)}(b.a) for b in b_1998]...)
+    bn   = b_1998_n
+    ba   = b_1998_a
     bne  = SVector((abs(m) == 2 ? e*e    : (abs(m) == 1 ? e  : 1.) for m in bn[:,2])...)
     dbne = SVector((abs(m) == 2 ? 2*e*de : (abs(m) == 1 ? de : 0.) for m in bn[:,2])...)
 

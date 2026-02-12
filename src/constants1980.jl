@@ -160,3 +160,6 @@ const iau_1980_nutation_series = [
     PeriodicTerms([ 2,  0,  0,  2,  0], [       1.0,    0.0,      0.0,    0.0]),
     PeriodicTerms([ 0,  0,  2,  4,  2], [      -1.0,    0.0,      0.0,    0.0]),
     PeriodicTerms([ 0,  1,  0,  1,  0], [       1.0,    0.0,      0.0,    0.0])]
+
+@const_smatrix_from_series n_1980_nutation iau_1980_nutation_series n
+@const_smatrix_from_series a_1980_nutation iau_1980_nutation_series a

@@ -232,3 +232,8 @@ const b_1998 = [
     PeriodicTerms([1,  0, -1, -1], [-0.000119]),
     PeriodicTerms([4, -1,  0, -1], [ 0.000115]),
     PeriodicTerms([2, -2,  0,  1], [ 0.000107])]
+
+@const_smatrix_from_series lr_1998_n lr_1998 n
+@const_smatrix_from_series lr_1998_a lr_1998 a
+@const_smatrix_from_series  b_1998_n  b_1998 n
+@const_smatrix_from_series  b_1998_a  b_1998 a
