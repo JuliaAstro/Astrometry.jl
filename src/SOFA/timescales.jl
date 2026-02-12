@@ -179,7 +179,7 @@ function dat(year::Integer, month::Integer, day::Integer, subday::AbstractFloat)
 
     @assert 0.0 <= subday <= 1.0 "Fractional day out of range [0-1]."
     @assert year >= DRIFTSECOND[1].year "UTC date is out of range [$(DRIFTSECOND[1].year)-present]."
-    if (year > 2021 + 5) @warn "UTC date $year-$month-$day is suspect." end
+    if (year > 2023 + 5) @warn "UTC date $year-$month-$day is suspect." end
 
     Δt = typeof(subday)(0.0)
     if year < 1972
