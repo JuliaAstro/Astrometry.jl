@@ -4,7 +4,6 @@
 
 function equinox(date, model=:IAU2006A)
     models = [:IAU2000A, :IAU2000B, :IAU2006]
-    model_message = "Incorrect model type: options are :IAU2000A, :IAU2000B, :IAU2006A"
     @assert model in models "Incorrect model type"
     
     if model == :IAU2000A
@@ -29,7 +28,6 @@ end
 """
 function precession_nutation(date; model=:IAU2006A)
     models = [:IAU1980, :IAU2000A, :IAU2000B, :IAU2006A]
-    model_message = "Incorrect model type: options are :IAU1980, :IAU2000A, :IAU2000B, :IAU2006A"
     @assert model in models "Incorrect model type"
     
     if model == :IAU1980

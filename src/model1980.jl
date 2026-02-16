@@ -71,7 +71,7 @@ function iau_1980_obliquity(date::AbstractFloat)
     
     Δt = (date - JD2000)/(100*DAYPERYEAR)
 
-    ϵ = deg2rad(1/3600)*Polynomial(ϵ_1980...)(Δt)
+    return deg2rad(1/3600)*Polynomial(ϵ_1980...)(Δt)
 end
 
 """

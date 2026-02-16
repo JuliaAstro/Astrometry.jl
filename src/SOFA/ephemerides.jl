@@ -255,7 +255,7 @@ function moon98(day1::AbstractFloat, day2::AbstractFloat)
     dr = sum(la[:,2].*(dlre.*cos.(ϕ) .- lre.*dϕ.*sin.(ϕ)))/(ASTRUNIT*100*DAYPERYEAR)
 
     #  IAU 2006 Fukashima-Williams bias+precession angles
-    γB, ϕB, ψB, ϵA = pfw06(day1, day2)
+    γB, ϕB, ψB, _ = pfw06(day1, day2)
     #  Rotate the Moon position and velocity into GCRS (Note 6).
     R, pv = Rz(-γB)*Rx(-ϕB)*Rz(ψB), s2pv(λ, b, r, dλ, db, dr)
     SVector(R*pv[1], R*pv[2])

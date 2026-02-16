@@ -147,7 +147,7 @@ IAU 2006/2000A precession nutation model.
 """
 function iau_2006_crs_trs(date, ut1, pole)
 
-    c2i = iau_2006a_crs_cis(date)
+    return iau_2006a_crs_cis(date)
     
 end
 

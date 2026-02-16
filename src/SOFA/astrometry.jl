@@ -1955,7 +1955,7 @@ function aticq(ri::AbstractFloat, di::AbstractFloat, a::Astrom)
 	ppr = a.bpn'*s2c(ri, di)
 	#  Aberration, giving GCRS natural direction.
 	d, pnat, pco = zeros(Float64, 3), zeros(Float64, 3), zeros(Float64, 3)
-	for j ∈ 1:3
+	for _ ∈ 1:3
 		w = ppr .- d
 		bf = copy(w) ./ norm(w)
 		af = ab(bf, a.v, a.em, a.bm1)
@@ -1965,7 +1965,7 @@ function aticq(ri::AbstractFloat, di::AbstractFloat, a::Astrom)
 	end
 	#  Light deflection by the Sun, giving BCRS coordinate direction.
 	d = zeros(Float64, 3)
-	for j ∈ 1:3
+	for _ ∈ 1:3
 		w = pnat .- d
 		bf = copy(w) ./ norm(w)
 		af = ldsun(bf, a.eh, a.em)
@@ -2051,7 +2051,7 @@ function aticqn(ri::AbstractFloat, di::AbstractFloat, a::Astrom, n::Int,
 	ppr = a.bpn'*s2c(ri, di)
 	#  Aberration, giving GCRS natural direction.
 	d, pnat, pco = zeros(Float64, 3), zeros(Float64, 3), zeros(Float64, 3)
-	for j ∈ 1:2
+	for _ ∈ 1:2
 		bf = (ppr .- d) ./ norm(ppr .- d)
 		af = ab(bf, a.v, a.em, a.bm1)
 		d .= af .- bf
@@ -2059,7 +2059,7 @@ function aticqn(ri::AbstractFloat, di::AbstractFloat, a::Astrom, n::Int,
 	end
 	#  Light deflection, giving BCRS coordinate direction.
 	d = zeros(Float64, 3)
-	for j ∈ 1:5
+	for _ ∈ 1:5
 		bf = (pnat .- d) ./ norm(pnat .- d)
 		af = ldn(n, b, a.eb, bf)
 		d .= af .- bf
@@ -2428,7 +2428,7 @@ function atoc13(tp::Char, ob1::AbstractFloat, ob2::AbstractFloat, utc1::Abstract
 	dut1::AbstractFloat, elong::AbstractFloat, ϕ::AbstractFloat, hm::AbstractFloat, xp::AbstractFloat,
 	yp::AbstractFloat, phpa::AbstractFloat, tc::AbstractFloat, rh::AbstractFloat, wl::AbstractFloat)
 	#  Star-independent astrometry parameters
-	a, eo = apco13(utc1, utc2, dut1, elong, ϕ, hm, xp, yp, phpa, tc, rh, wl)
+	a = apco13(utc1, utc2, dut1, elong, ϕ, hm, xp, yp, phpa, tc, rh, wl)[1]
 	#  Transform observed to CIRS
 	ri, di = atoiq(tp, ob1, ob2, a)
 	#  Transform CIRS to ICRS
@@ -3094,8 +3094,8 @@ function pvtob(elong::AbstractFloat, ϕ::AbstractFloat, hm::AbstractFloat, xp::A
 	#  TIO position.
 	x, y, z = trxp(pom00(xp, yp, sp), gd2gc(:WGS84, elong, ϕ, hm))
 	#  Functions of ERA, position and velocity.
-	pv = SVector(SVector(sum(sincos(θ) .* (-y, x)), sum(sincos(θ) .* (x, y)), z),
-		Ω .* SVector(sum(sincos(θ) .* (-x, -y)), sum(sincos(θ) .* (-y, x)), 0.0))
+	return SVector(SVector(sum(sincos(θ) .* (-y, x)), sum(sincos(θ) .* (x, y)), z),
+		       Ω .* SVector(sum(sincos(θ) .* (-x, -y)), sum(sincos(θ) .* (-y, x)), 0.0))
 end
 
 """
@@ -3261,7 +3261,7 @@ function refco(phpa::AbstractFloat, tc::AbstractFloat, rh::AbstractFloat, wl::Ab
 	β = 4.4474e-6*(273.15 + t)
 	β -= !optical ? 0.0074*pw*β : 0.0
 	#  Refraction constants from Green.
-	refa, refb = γ*(1.0 - β), -γ*(β - γ/2.0)
+	return γ*(1.0 - β), -γ*(β - γ/2.0)
 end
 
 """

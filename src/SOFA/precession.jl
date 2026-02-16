@@ -990,7 +990,7 @@ Technical Note No. 32, BKG (2004)
 function c2tpe(tt1::F, tt2::F, ut1::F, ut2::F, ψ::F, ϵ::F, xp::F, yp::F) where
       F<:AbstractFloat
     #  Form the celestial-to-intermediate matrix for this TT
-    ϵA, rb, rp, rbp, rn, rbpn = values(pn00(tt1, tt2, ψ, ϵ))
+    ϵA, _, _, _, _, rbpn = values(pn00(tt1, tt2, ψ, ϵ))
     #  Predict the Greenwich Mean Sidereal Time for this UT1 and TT, predict
     #  the equation of the equinoxes for this TT and nutation, estimate s',
     #  form the polar motion matrix, and combine to form the
@@ -2922,7 +2922,7 @@ n.b. The celestial ephemeris origin (CEO) was renamed "celestial
 """
 function pn00(day1::AbstractFloat, day2::AbstractFloat, ψ::AbstractFloat, ϵ::AbstractFloat)
     #  IAU 2000 precession-rate adjustments
-    ψpr, ϵpr = pr00(day1, day2)
+    ϵpr = pr00(day1, day2)[2]
     #  Mean obliquity, consistent with IAU 2000 precession-nutation
     ϵA = obl80(day1, day2) + ϵpr
     #  Frame bias and precession matrices and their product.
