@@ -1357,11 +1357,10 @@
 @test SOFA.dat(2017, 9, 1, 0.0) == 37.0
 
 #   Approximation to TDB-TT
-@test (SOFA.dtdb(2448939.5, 0.123, 0.76543, 5.0123, 5525.242, 3190.0) -
-       -0.1280368005936998991e-2) <= 1e-15
+@test SOFA.dtdb(2448939.5, 0.123, 0.76543, 5.0123, 5525.242, 3190.0) ≈ -0.1280368005936998991e-2 atol=1e-15
 
 #   Universal Coordinated Time (UTC) to Julian day, including leap second
-@test (sum(values(SOFA.dtf2d("UTC", 1994, 6, 30, 23, 59, 60.13599))) - 2449534.49999) <= 1e-13
+@test sum(values(SOFA.dtf2d("UTC", 1994, 6, 30, 23, 59, 60.13599))) ≈ 2449534.49999 atol=1e-13
 
 @test all(abs.(values(SOFA.taitt(2453750.5, 0.892482639)) .- (2453750.5, 0.892855139)) .<= 1e-12)
 
@@ -1449,17 +1448,17 @@
 
 @test all(values(SOFA.a2tf(4, -3.01234)) .== ('-', 11, 30, 22, 6484))
 
-@test (SOFA.af2a('-', 45, 13, 27.2) - -0.7893115794313644842) <= 1e-12
+@test SOFA.af2a('-', 45, 13, 27.2) ≈ -0.7893115794313644842 atol=1e-12
 
-@test (SOFA.anp(-0.1) - 6.183185307179586477) <= 1e-12
+@test SOFA.anp(-0.1) ≈ 6.183185307179586477 atol=1e-12
 
-@test (SOFA.anpm(-4.0) - 2.283185307179586477) <= 1e-12
+@test SOFA.anpm(-4.0) ≈ 2.283185307179586477 atol=1e-12
 
 @test all(values(SOFA.d2tf(4, -0.987654321)) .== ('-', 23, 42, 13, 3333))
 
-@test (SOFA.tf2a('+', 4, 58, 20.2) - 1.301739278189537429) <= 1e-12
+@test SOFA.tf2a('+', 4, 58, 20.2) ≈ 1.301739278189537429 atol=1e-12
 
-@test (SOFA.tf2d(' ', 23, 55, 10.9) - 0.9966539351851851852) <= 1e-12
+@test SOFA.tf2d(' ', 23, 55, 10.9) ≈ 0.9966539351851851852 atol=1e-12
 
 ####    Test Vector-Matrix Build Rotations    ####
 
