@@ -2,7 +2,7 @@
     equinox(date, model=:IAU2006A)
 """
 function equinox(date, model=:IAU2006A)
-    models = [:IAU2000A, :IAU2000B, :IAU2006]
+    models = (:IAU2000A, :IAU2000B, :IAU2006)
     @assert model in models "Incorrect model type"
     
     return if model == :IAU2000A
@@ -24,7 +24,7 @@ end
 
 """
 function precession_nutation(date; model=:IAU2006A)
-    models = [:IAU1980, :IAU2000A, :IAU2000B, :IAU2006A]
+    models = (:IAU1980, :IAU2000A, :IAU2000B, :IAU2006A)
     @assert model in models "Incorrect model type"
     
     return if model == :IAU1980
