@@ -1425,8 +1425,10 @@ function ltpecl(epoch::AbstractFloat)
         sum(cos.(ϕ).*ecl_pA_c_2011 .+ sin.(ϕ).*ecl_pA_s_2011),
         Polynomial(ecl_qA_0_2011...)(Δt) +
         sum(cos.(ϕ).*ecl_qA_c_2011 .+ sin.(ϕ).*ecl_qA_s_2011))
-    w, ϵ0 = (1 - p*p - q*q) < 0.0 ? 0.0 : sqrt(1 - p*p - q*q), deg2rad(1/3600)*ϵ0_2006
-    SVector(p, -(q*cos(ϵ0) + w*sin(ϵ0)), -(q*sin(ϵ0) - w*cos(ϵ0)))
+    one_pp_qq = 1 - p*p - q*q
+    w, ϵ0 = one_pp_qq < 0.0 ? 0.0 : sqrt(one_pp_qq), deg2rad(1/3600)*ϵ0_2006
+    s, c = sincos(ϵ0)
+    return SVector(p, -(q * c + w * s), -(q * s - w * c))
 end
 
 """
@@ -1835,8 +1837,7 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
 
     sum1 = sum2 = zero(eltype(la))
     @inbounds for i in axes(la, 1)
-        s = sin(ϕl[i])
-        c = cos(ϕl[i])
+        s, c = sincos(ϕl[i])
         sum1 += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
         sum2 += (la[i,4] + la[i,5] * Δt) * c + la[i,6] * s
     end
@@ -1889,8 +1890,7 @@ function nut00a(day1::AbstractFloat, day2::AbstractFloat)
     #  Convert from 0.1 μas to radians
     sum1 = sum2 = zero(eltype(pa))
     @inbounds for i in axes(pa, 1)
-        s = sin(ϕp[i])
-        c = cos(ϕp[i])
+        s, c = sincos(ϕp[i])
         sum1 += pa[i,1] * s + pa[i,2] * c
         sum2 += pa[i,3] * s + pa[i,4] * c
     end
@@ -2049,8 +2049,7 @@ function nut00b(day1::AbstractFloat, day2::AbstractFloat)
     @inbounds for i in axes(ln, 1)
         angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
         angle = mod2pi(angle)
-        s = sin(angle)
-        c = cos(angle)
+        s, c = sincos(angle)
         sum1 += (la[i,1] + la[i,2] * Δt) * s + la[i,3] * c
         sum2 += (la[i,4] + la[i,5] * Δt) * c + la[i,6] * s
     end
@@ -2231,8 +2230,7 @@ function nut80(day1::AbstractFloat, day2::AbstractFloat)
     sum1 = sum2 = zero(eltype(la))
     @inbounds for i in axes(ln, 1)
         angle = ln[i,1] * arg1 + ln[i,2] * arg2 + ln[i,3] * arg3 + ln[i,4] * arg4 + ln[i,5] * arg5
-        s = sin(angle)
-        c = cos(angle)
+        s, c = sincos(angle)
         sum1 += (la[i,1] + la[i,2] * Δt) * s
         sum2 += (la[i,3] + la[i,4] * Δt) * c
     end
@@ -3805,19 +3803,24 @@ function s00(day1::AbstractFloat, day2::AbstractFloat, x::AbstractFloat, y::Abst
     sum0 = sum1 = sum2 = sum3 = sum4 = zero(eltype(a0))
 
     @inbounds for i in axes(a0, 1)
-        sum0 += a0[i,1] * sin(ϕ0[i]) + a0[i,2] * cos(ϕ0[i])
+        s, c = sincos(ϕ0[i])
+        sum0 += a0[i,1] * s + a0[i,2] * c
     end
     @inbounds for i in axes(a1, 1)
-        sum1 += a1[i,1] * sin(ϕ1[i]) + a1[i,2] * cos(ϕ1[i])
+        s, c = sincos(ϕ1[i])
+        sum1 += a1[i,1] * s + a1[i,2] * c
     end
     @inbounds for i in axes(a2, 1)
-        sum2 += a2[i,1] * sin(ϕ2[i]) + a2[i,2] * cos(ϕ2[i])
+        s, c = sincos(ϕ2[i])
+        sum2 += a2[i,1] * s + a2[i,2] * c
     end
     @inbounds for i in axes(a3, 1)
-        sum3 += a3[i,1] * sin(ϕ3[i]) + a3[i,2] * cos(ϕ3[i])
+        s, c = sincos(ϕ3[i])
+        sum3 += a3[i,1] * s + a3[i,2] * c
     end
     @inbounds for i in axes(a4, 1)
-        sum4 += a4[i,1] * sin(ϕ4[i]) + a4[i,2] * cos(ϕ4[i])
+        s, c = sincos(ϕ4[i])
+        sum4 += a4[i,1] * s + a4[i,2] * c
     end
 
     corrections = SVector(sum0, sum1, sum2, sum3, sum4, 0.0)
@@ -4062,19 +4065,24 @@ function s06(day1::AbstractFloat, day2::AbstractFloat, x::AbstractFloat, y::Abst
     sum0 = sum1 = sum2 = sum3 = sum4 = zero(eltype(a0))
 
     @inbounds for i in axes(a0, 1)
-        sum0 += a0[i,1] * sin(ϕ0[i]) + a0[i,2] * cos(ϕ0[i])
+        s, c = sincos(ϕ0[i])
+        sum0 += a0[i,1] * s + a0[i,2] * c
     end
     @inbounds for i in axes(a1, 1)
-        sum1 += a1[i,1] * sin(ϕ1[i]) + a1[i,2] * cos(ϕ1[i])
+        s, c = sincos(ϕ1[i])
+        sum1 += a1[i,1] * s + a1[i,2] * c
     end
     @inbounds for i in axes(a2, 1)
-        sum2 += a2[i,1] * sin(ϕ2[i]) + a2[i,2] * cos(ϕ2[i])
+        s, c = sincos(ϕ2[i])
+        sum2 += a2[i,1] * s + a2[i,2] * c
     end
     @inbounds for i in axes(a3, 1)
-        sum3 += a3[i,1] * sin(ϕ3[i]) + a3[i,2] * cos(ϕ3[i])
+        s, c = sincos(ϕ3[i])
+        sum3 += a3[i,1] * s + a3[i,2] * c
     end
     @inbounds for i in axes(a4, 1)
-        sum4 += a4[i,1] * sin(ϕ4[i]) + a4[i,2] * cos(ϕ4[i])
+        s, c = sincos(ϕ4[i])
+        sum4 += a4[i,1] * s + a4[i,2] * c
     end
 
     corrections = SVector(sum0, sum1, sum2, sum3, sum4, 0.0)
