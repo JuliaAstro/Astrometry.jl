@@ -3261,7 +3261,7 @@ function refco(phpa::AbstractFloat, tc::AbstractFloat, rh::AbstractFloat, wl::Ab
 	β = 4.4474e-6*(273.15 + t)
 	β -= !optical ? 0.0074*pw*β : 0.0
 	#  Refraction constants from Green.
-	return (; refa=γ*(1.0 - β), refb=-γ*(β - γ/2.0))
+	return γ*(1.0 - β), -γ*(β - γ/2.0)
 end
 
 """
