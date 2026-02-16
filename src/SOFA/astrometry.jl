@@ -556,7 +556,7 @@ function apco(day1::F, day2::F, ebpv::W, ehp::V, x::F, y::F, s::F, θ::F,
 	W <: AbstractVecOrMat{<:AbstractVector{<:AbstractFloat}}}
 
 	#  Form the rotation matrix, CIRS to apparent (HA, Dec).
-	r = Rz(elong)Rx(-yp)Ry(-xp)Rz(θ+sp)
+	r = Rz(elong) * Rx(-yp) * Ry(-xp) * Rz(θ+sp)
 	#  Solve for the local Earth rotation angle.
 	eral = r[1, 1] != 0.0 || r[1, 2] != 0.0 ? atan(r[1, 2], r[1, 1]) : 0.0
 	#  Solve for the polar motion (x, y) with respect to local meridian.
@@ -1173,7 +1173,7 @@ refraction constants as well as the site coordinates.
 function apio(sp::AbstractFloat, θ::AbstractFloat, elong::AbstractFloat, ϕ::AbstractFloat, hm::AbstractFloat,
 	xp::AbstractFloat, yp::AbstractFloat, refa::AbstractFloat, refb::AbstractFloat, a::Astrom)
 	#  Form the rotation matrix, CIRS to apparent (HA, Dec).
-	r = Rz(elong)Rx(-yp)Ry(-xp)Rz(θ+sp)
+	r = Rz(elong) * Rx(-yp) * Ry(-xp) * Rz(θ+sp)
 	#  Solve for local Earth rotation angle.
 	eral = r[1, 1] != 0.0 || r[1, 2] != 0.0 ? atan(r[1, 2], r[1, 1]) : 0.0
 	#  Solve for polar motion (x, y) with respect to local meridian.

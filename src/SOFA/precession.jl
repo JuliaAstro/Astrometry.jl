@@ -117,8 +117,8 @@ function bp00(day1::AbstractFloat, day2::AbstractFloat)
                        Polynomial(ω_1977...)(Δt))./3600) .+
                            values(pr00(day1, day2))
     #  Frame bias matrix: GCRS to J2000.0.
-    rb = Rx(-δϵ)Ry(δψ*sin(deg2rad(ϵ0_2000/3600)))Rz(δra)
-    rp = Rz(χA)Rx(-ωA)Rz(-ψA)Rx(deg2rad(ϵ0_2000/3600))
+    rb = Rx(-δϵ) * Ry(δψ*sin(deg2rad(ϵ0_2000/3600))) * Rz(δra)
+    rp = Rz(χA) * Rx(-ωA) * Rz(-ψA) * Rx(deg2rad(ϵ0_2000/3600))
     #  Bias-precession matrix: GCRS to mean of date.
     (rb = rb, rp = rp, rbp = rp*rb)
 end
@@ -604,7 +604,7 @@ Technical Note No. 32, BKG (2004)
 function c2ixys(x::F, y::F, s::F) where F<:AbstractFloat
     r = x*x + y*y
     e = r > 0.0 ? atan(y, x) : 0.0
-    Rz(-(e+s))Ry(atan(sqrt(r/(1.0 - r))))Rz(e)
+    Rz(-(e+s)) * Ry(atan(sqrt(r/(1.0 - r)))) * Rz(e)
 end
 
 """
@@ -1232,7 +1232,7 @@ Capitaine, N. & Wallace, P.T., 2006, Astron.Astrophys. 450, 855
 Hilton, J. et al., 2006, Celest.Mech.Dyn.Astron. 94, 351
 """
 function fw2m(γ::F, ϕ::F, ψ::F, ϵ::F)  where F<:AbstractFloat
-   Rx(-ϵ)Rz(-ψ)Rx(ϕ)Rz(γ)
+    Rx(-ϵ) * Rz(-ψ) * Rx(ϕ) * Rz(γ)
 end
 
 """
@@ -1280,7 +1280,7 @@ CIP X,Y given Fukushima-Williams bias-precession-nutation angles.
 Hilton, J. et al., 2006, Celest.Mech.Dyn.Astron. 94, 351
 """
 function fw2xy(γ::AbstractFloat, ϕ::AbstractFloat, ψ::AbstractFloat, ϵ::AbstractFloat)
-    (Rx(-ϵ)Rz(-ψ)Rx(ϕ)Rz(γ))[3,1:2]
+    (Rx(-ϵ) * Rz(-ψ) * Rx(ϕ) * Rz(γ))[3,1:2]
 end
 
 """
@@ -1657,7 +1657,7 @@ Seidelmann (ed), University Science Books (1992), Section 3.222-3
 (p114).
 """
 function numat(ϵA::AbstractFloat, δψ::AbstractFloat, δϵ::AbstractFloat)
-    Rx(-(ϵA + δϵ))Rz(-δψ)Rx(ϵA)
+    Rx(-(ϵA + δϵ)) * Rz(-δψ) * Rx(ϵA)
 end
 
 """
@@ -2834,7 +2834,7 @@ Kaplan,G.H., 1981. USNO circular no. 163, pA2.
 function pmat76(day1::AbstractFloat, day2::AbstractFloat)
     #  Precession Euler angles, J2000.0 to specified date.
     ζ, z, θ = prec76(JD2000, 0.0, day1, day2)
-    Rz(-z)Ry(θ)Rz(-ζ)
+    Rz(-z) * Ry(θ) * Rz(-ζ)
 end
 
 """
@@ -3551,7 +3551,7 @@ Form the matrix of polar motion for a given date, IAU 2000.
 McCarthy, D. D., Petit, G. (eds.), IERS Conventions (2003), IERS
 Technical Note No. 32, BKG (2004)
 """
-pom00(x::AbstractFloat, y::AbstractFloat, s::AbstractFloat) = Rx(-y)Ry(-x)Rz(s)
+pom00(x::AbstractFloat, y::AbstractFloat, s::AbstractFloat) = Rx(-y) * Ry(-x) * Rz(s)
 
 """
     pr00(day1::AbstractFloat, day2::AbstractFloat)

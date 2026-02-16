@@ -134,7 +134,7 @@ function iau_2006a_crs_cis(date)
     cio_s = iau_2006_cio_locator(tt, pnmat[3,1:2])
     E = (x*x+y*y) > 0.0 ? atan(y, x) : 0.0
     d = atan(sqrt((x*x+y*y)/(1-(x*x+y*y))))
-    Rz(-(E+cio_s))Ry(d)Rz(E)
+    Rz(-(E+cio_s)) * Ry(d) * Rz(E)
 end
 
 """
