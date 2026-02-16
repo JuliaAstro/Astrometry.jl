@@ -5,19 +5,17 @@ function equinox(date, model=:IAU2006A)
     models = [:IAU2000A, :IAU2000B, :IAU2006]
     @assert model in models "Incorrect model type"
     
-    if model == :IAU2000A
+    return if model == :IAU2000A
         ϵA = iau_1980_obliquity(date) + ϵ_2000_corr*(date - JD2000)/(100*DAYPERYEAR)
-        ψn, ϵn = iau_2000a_nutation(date)
-        equinox = ψn * cos(ϵA) + equinox_complement(date)
+        ψn = iau_2000a_nutation(date)[1]
+        ψn * cos(ϵA) + equinox_complement(date)
     elseif model == :IAU2000B
         ϵA = iau_1980_obliquity(date) + ϵ_2000_corr*(date - JD2000)/(100*DAYPERYEAR)
-        ψn, ϵn = iau_2000b_nutation(date)
-        equinox = ψn * cos(ϵA) + equinox_complement(date)
+        ψn = iau_2000b_nutation(date)[1]
+        ψn * cos(ϵA) + equinox_complement(date)
     elseif model == :IAU2006
-        equinox = rem2pi(iau_2006a_gst(0.0, date) - iau_2006_gmst(0.0, date), RoundNearest)
+        rem2pi(iau_2006a_gst(0.0, date) - iau_2006_gmst(0.0, date), RoundNearest)
     end
-
-    return equinox
 end
 
 """
