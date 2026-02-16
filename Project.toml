@@ -1,7 +1,7 @@
 name = "Astrometry"
 uuid = "f1a567a2-b8c3-46a6-a8e4-0d50b742dea6"
-authors = ["Paul Barrett <pebarrett@gmail.com>", "Tomas Gal <himself@tamasgal.com>"]
-version = "0.2.2"
+authors = ["Paul Barrett <pebarrett@gmail.com>", "Tamas Gal <himself@tamasgal.com>"]
+version = "0.2.3"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
