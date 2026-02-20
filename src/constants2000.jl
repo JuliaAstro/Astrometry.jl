@@ -237,3 +237,12 @@ const b_1998 = [
 @const_smatrix_from_series lr_1998_a lr_1998 a
 @const_smatrix_from_series  b_1998_n  b_1998 n
 @const_smatrix_from_series  b_1998_a  b_1998 a
+
+# The e-factor (e) is a small correction term that accounts for the eccentricity
+# of Earth's orbit around the Sun. Its influence on the Moon's position depends
+# on whether the Sun's mean annomaly (ls, the second column of the n-matrices)
+# appears in each term of the summation.
+# Teh following emasks encode which of those three cases applies to each of the rows.
+# These masks are mainly used in the moon98 routine to dramatically reduce allocations.
+const lr_emask = map(m -> abs(m) == 2 ? 2 : (abs(m) == 1 ? 1 : 0), lr_1998_n[:, 2])
+const b_emask = map(m -> abs(m) == 2 ? 2 : (abs(m) == 1 ? 1 : 0), b_1998_n[:, 2])
