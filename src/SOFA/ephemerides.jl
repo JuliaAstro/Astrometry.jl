@@ -227,15 +227,15 @@ function moon98(day1::AbstractFloat, day2::AbstractFloat)
     de = Polynomial(SVector(1., 2.).*efac[2:3]...)(Δt)
 
     #  Arange matrices for vector operations.
+    lre  = map(m -> m == 2 ? e*e    : (m == 1 ? e  : 1.0), lr_emask)
+    dlre = map(m -> m == 2 ? 2*e*de : (m == 1 ? de : 0.0), lr_emask)
+    bne  = map(m -> m == 2 ? e*e    : (m == 1 ? e  : 1.0), b_emask)
+    dbne = map(m -> m == 2 ? 2*e*de : (m == 1 ? de : 0.0), b_emask)
+
     ln  = lr_1998_n
     la  = lr_1998_a
-    lre  = [abs(m) == 2 ? e*e    : (abs(m) == 1 ? e  : 1.) for m in ln[:,2]]
-    dlre = [abs(m) == 2 ? 2*e*de : (abs(m) == 1 ? de : 0.) for m in ln[:,2]]
-
     bn   = b_1998_n
     ba   = b_1998_a
-    bne  = SVector((abs(m) == 2 ? e*e    : (abs(m) == 1 ? e  : 1.) for m in bn[:,2])...)
-    dbne = SVector((abs(m) == 2 ? 2*e*de : (abs(m) == 1 ? de : 0.) for m in bn[:,2])...)
 
     ϕ, dϕ = ln*SVector(dm, ls, lm, fm), ln*SVector(ddm, dls, dlm, dfm)
     ψ, dψ = SVector(a1, λm-fm, a2), SVector(da1, dλm-dfm, da2)
