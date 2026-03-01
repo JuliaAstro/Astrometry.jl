@@ -21,7 +21,7 @@ struct Leapsecond{T<:Integer, U<:Real}
 end
 
 """
-    struct Astrom
+    Astrom
 
 Star independent astrometry parameters
 
@@ -75,7 +75,7 @@ function Astrom(pm, eb, eh, em, v, bm1, bpn)
 end
 
 """
-    struct Ldbody
+    Ldbody
 
 Body parameters for light deflection
 
