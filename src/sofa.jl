@@ -21,7 +21,29 @@ struct Leapsecond{T<:Integer, U<:Real}
 end
 
 """
-    Star independent astrometry parameters
+    struct Astrom
+
+Star independent astrometry parameters
+
+| Field Name | Description                                      |
+|:-----------|:-------------------------------------------------|
+| `pmt`      | proper motion time interval (SSB, Julian years)  |
+| `eb`       | solar system barycenter to observer (vector, AU) |
+| `eh`       | Sun to observer (vector, unit)                   |
+| `em`       | distance from Sun to observer (AU)               |
+| `v`        | barycentric observer velocity (vector, c)        |
+| `bm1`      | inverse Lorenz factor, i.e., sqrt(1-v^2)         |
+| `bpn`      | bias-precesson-nutation matrix                   |
+| `along`    | longitude + s' + dERA(DUT) (radians)             |
+| `phi`      | geodetic latitude (radians)                      |
+| `xpl`      | polar motion xp wrt local meridian (radians)     |
+| `ypl`      | polar motion yp wrt local meridian (radians)     |
+| `sphi`     | sine of geodetic latitude                        |
+| `cphi`     | cosine of geodetic latitude                      |
+| `diurab`   | magnitude of diurnal aberration vector           |
+| `eral`     | "local" Earth rotation angle (radians)           |
+| `refa`     | refraction constant A (radians)                  |
+| `refb`     | refraction constant B (radians)                  |
 """
 struct Astrom
     pmt::AbstractFloat                  # proper motion time interval (SSB, Julian years)
@@ -53,7 +75,15 @@ function Astrom(pm, eb, eh, em, v, bm1, bpn)
 end
 
 """
-    Body parameters for light deflection
+    struct Ldbody
+
+Body parameters for light deflection
+
+| Field Name | Description                                      |
+|:-----------|:-------------------------------------------------|
+| `bm`       | mass of the body (solar masses)                  |
+| `dl`       | deflection limiter (radians^2/2)                 |
+| `pv`       | barycentric PV of the body (AU, AU/day)          |
 """
 struct Ldbody
     bm::AbstractFloat                   #  mass of the body (solar masses)
