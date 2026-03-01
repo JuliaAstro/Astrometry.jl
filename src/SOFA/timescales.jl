@@ -26,15 +26,16 @@ quasi-JD form that includes special provision for leap seconds).
 2) ndp is the number of decimal places in the seconds field, and can
    have negative as well as positive values, such as:
 
-   ndp         resolution
-   -4            1 00 00
-   -3            0 10 00
-   -2            0 01 00
-   -1            0 00 10
-    0            0 00 01
-    1            0 00 00.1
-    2            0 00 00.01
-    3            0 00 00.001
+        ndp         resolution
+        ---         ----------
+        -4           1 00 00
+        -3           0 10 00
+        -2           0 01 00
+        -1           0 00 10
+        0            0 00 01
+        1            0 00 00.1
+        2            0 00 00.01
+        3            0 00 00.001
 
    The limits are platform dependent, but a safe range is -5 to +9.
 
@@ -213,6 +214,7 @@ dynamical time and terrestrial time, for an observer on the Earth.
 The different time scales - proper, coordinate and realized - are
 related to each other:
 
+```
           TAI             <-  physically realized
            :
         offset            <-  observed (nominally +32.184s)
@@ -236,6 +238,7 @@ related to each other:
     "periodic" terms      <-  -eraDtdb is an approximation
            :
           TT              <-  terrestrial time
+````
 
 Adopted values for the various constants can be found in the IERS
 Conventions (McCarthy & Petit 2003).
@@ -260,7 +263,7 @@ Conventions (McCarthy & Petit 2003).
    JD(TT)=2450123.7 could be expressed in any of these ways, among
    others:
 
-          date1          date2
+       date1             date2
 
        2450123.7           0.0       (JD method)
        2451545.0       -1421.3       (J2000 method)
@@ -312,19 +315,19 @@ Conventions (McCarthy & Petit 2003).
 
 6) The geocentric TDB-TT model used in the present function is that of
    Fairhead & Bretagnon (1990), in its full form.  It was originally
-   supplied by Fairhead (private communications with P.T.Wallace,
-   1990) as a Fortran subroutine.  The present C function contains an
+   supplied by Fairhead (private communications with P.T.Wallace, 1960)
+   as a Fortran subroutine.  The present C function contains an
    adaptation of the Fairhead code.  The numerical results are
    essentially unaffected by the changes, the differences with respect
    to the Fairhead & Bretagnon original being at the 1e-20 s level.
 
    The topocentric part of the model is from Moyer (1981) and Murray
    (1983), with fundamental arguments adapted from Simon et al. 1994.
-   It is an approximation to the expression ( v / c ) . ( r / c ),
-   where v is the barycentric velocity of the Earth, r is the
-   geocentric position of the observer and c is the speed of light.
+   It is an approximation to the expression `( v / c ) . ( r / c )`,
+   where `v` is the barycentric velocity of the Earth, `r` is the
+   geocentric position of the observer and `c` is the speed of light.
 
-   By supplying zeroes for u and v, the topocentric part of the model
+   By supplying zeroes for `u` and `v`, the topocentric part of the model
    can be nullified, and the function will return the Fairhead &
    Bretagnon result alone.
 
