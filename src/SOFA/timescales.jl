@@ -505,7 +505,8 @@ function dtf2d(scale::AbstractString, year::Int, month::Int, day::Int, hour::Int
 end
 
 """
-    taitt(day1::AbstractFloat, day2::AbstractFloat)
+    taitt(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    taitt(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: International Atomic Time, TAI, to
 Terrestrial Time, TT.
@@ -541,7 +542,9 @@ function taitt(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    taiut1(day1::AbstractFloat, day2::AbstractFloat, Δt::AbstractFloat)
+    taiut1(day1[, day2], Δt) -> NamedTuple{(:day, :fraction)}
+    taiut1(df::NamedTuple{(:day, :fraction)}, Δt) -> NamedTuple{(:day, :fraction)}
+    taiut1(Δt) -> d->(taiut1, Δt)
 
 Time scale transformation: International Atomic Time, TAI, to
 Universal Time, UT1.
@@ -578,7 +581,8 @@ function taiut1(day1::AbstractFloat, day2::AbstractFloat, Δt::AbstractFloat)
 end
 
 """
-    taiutc(day1::AbstractFloat, day2::AbstractFloat)
+    taiutc(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    taiutc(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: International Atomic Time, TAI, to
 Coordinated Universal Time, UTC.
@@ -636,7 +640,8 @@ function taiutc(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    tcbtdb(day1::AbstractFloat, day2::AbstractFloat)
+    tcbtdb(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    tcbtdb(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: Barycentric Coordinate Time, TCB, to
 Barycentric Dynamical Time, TDB.
@@ -689,7 +694,8 @@ function tcbtdb(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    tcgtt(day1::AbstractFloat, day2::AbstractFloat)
+    tcgtt(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    tcgtt(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: Geocentric Coordinate Time, TCG, to
 Terrestrial Time, TT.
@@ -728,7 +734,8 @@ function tcgtt(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    tdbtcb(day1::AbstractFloat, day2::AbstractFloat)
+    tdbtcb(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    tdbtcb(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: Barycentric Dynamical Time, TDB, to
 Barycentric Coordinate Time, TCB.
@@ -783,7 +790,9 @@ function tdbtcb(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    tdbtt(day1::AbstractFloat, day2::AbstractFloat, dtr::AbstractFloat)
+    tdbtt(day1[, day2], dtr) -> NamedTuple{(:day, :fraction)}
+    tdbtt(df::NamedTuple{(:day, :fraction)}, dtr) -> NamedTuple{(:day, :fraction)}
+    tdbtt(dtr) -> d->(tdbtt, dtr)
 
 Time scale transformation: Barycentric Dynamical Time, TDB, to
 Terrestrial Time, TT.
@@ -830,7 +839,8 @@ function tdbtt(day1::AbstractFloat, day2::AbstractFloat, dtr::AbstractFloat)
 end
 
 """
-    tttai(day1::AbstractFloat, day2::AbstractFloat)
+    tttai(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    tttai(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: Terrestrial Time, TT, to International
 Atomic Time, TAI.
@@ -867,7 +877,8 @@ function tttai(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    tttcg(day1::AbstractFloat, day2::AbstractFloat)
+    tttcg(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    tttcg(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: Terrestrial Time, TT, to Geocentric
 Coordinate Time, TCG.
@@ -908,7 +919,9 @@ function tttcg(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    tttdb(day1::AbstractFloat, day2::AbstractFloat, dtr::AbstractFloat)
+    tttdb(day1[, day2], dtr) -> NamedTuple{(:day, :fraction)}
+    tttdb(df::NamedTuple{(:day, :fraction)}, dtr) -> NamedTuple{(:day, :fraction)}
+    tttdb(dtr) -> d->(tttdb, dtr)
 
 Time scale transformation: Terrestrial Time, TT, to Barycentric
 Dynamical Time, TDB.
@@ -956,7 +969,9 @@ function tttdb(day1::AbstractFloat, day2::AbstractFloat, dtr::AbstractFloat)
 end
 
 """
-    ttut1(day1::AbstractFloat, day2::AbstractFloat, dt::AbstractFloat)
+    ttut1(day1[, day2], dt) -> NamedTuple{(:day, :fraction)}
+    ttut1(df::NamedTuple{(:day, :fraction)}, dt) -> NamedTuple{(:day, :fraction)}
+    ttut1(dt) -> d->(ttut1, dt)
 
 Time scale transformation: Terrestrial Time, TT, to Universal Time,
 UT1.
@@ -993,7 +1008,9 @@ function ttut1(day1::AbstractFloat, day2::AbstractFloat, dt::AbstractFloat)
 end
 
 """
-    ut1tai(day1::AbstractFloat, day2::AbstractFloat, dta::AbstractFloat)
+    ut1tai(day1[, day2], dta) -> NamedTuple{(:day, :fraction)}
+    ut1tai(df::NamedTuple{(:day, :fraction)}, dta) -> NamedTuple{(:day, :fraction)}
+    ut1tai(dta) -> d->(ut1tai, dta)
 
 Time scale transformation: Universal Time, UT1, to International
 Atomic Time, TAI.
@@ -1031,7 +1048,9 @@ function ut1tai(day1::AbstractFloat, day2::AbstractFloat, dta::AbstractFloat)
 end
 
 """
-    ut1tt(day1::AbstractFloat, day2::AbstractFloat, dt::AbstractFloat)
+    ut1tt(day1[, day2], dt) -> NamedTuple{(:day, :fraction)}
+    ut1tt(df::NamedTuple{(:day, :fraction)}, dt) -> NamedTuple{(:day, :fraction)}
+    ut1tt(dt) -> d->(ut1tt, dt)
 
 Time scale transformation: Universal Time, UT1, to Terrestrial Time,
 TT.
@@ -1068,7 +1087,9 @@ function ut1tt(day1::AbstractFloat, day2::AbstractFloat, dt::AbstractFloat)
 end
 
 """
-    ut1utc(day1::AbstractFloat, day2::AbstractFloat, duts::AbstractFloat)
+    ut1utc(day1[, day2], duts) -> NamedTuple{(:day, :fraction)}
+    ut1utc(df::NamedTuple{(:day, :fraction)}, duts) -> NamedTuple{(:day, :fraction)}
+    ut1utc(duts) -> d->(ut1utc, duts)
 
 Time scale transformation: Universal Time, UT1, to Coordinated
 Universal Time, UTC.
@@ -1156,7 +1177,8 @@ function ut1utc(day1::AbstractFloat, day2::AbstractFloat, duts::AbstractFloat)
 end
 
 """
-    utctai(day1::AbstractFloat, day2::AbstractFloat)
+    utctai(day1, day2=0) -> NamedTuple{(:day, :fraction)}
+    utctai(df::NamedTuple{(:day, :fraction)}) -> NamedTuple{(:day, :fraction)}
 
 Time scale transformation: Coordinated Universal Time, UTC, to
 International Atomic Time, TAI.
@@ -1237,7 +1259,9 @@ function utctai(day1::AbstractFloat, day2::AbstractFloat)
 end
 
 """
-    utcut1(day1::AbstractFloat, day2::AbstractFloat, dut1::AbstractFloat)
+    utcut1(day1[, day2], dut1) -> NamedTuple{(:day, :fraction)}
+    utcut1(df::NamedTuple{(:day, :fraction)}, dut1) -> NamedTuple{(:day, :fraction)}
+    utcut1(dut1) -> d->(utcut1, dut1)
 
 Time scale transformation: Coordinated Universal Time, UTC, to
 Universal Time, UT1.
@@ -1296,4 +1320,21 @@ function utcut1(day1::AbstractFloat, day2::AbstractFloat, dut1::AbstractFloat)
     #  Form UT1-TAI and UTC to TAI to UT1.
     NamedTuple{(:day, :fraction)}(
     taiut1(utctai(day1, day2)..., dut1 - dat(year, month, day, 0.0)))
+end
+
+for f in (:taitt, :taiutc, :tcbtdb, :tcgtt, :tdbtcb, :tttai, :tttcg, :utctai)
+    @eval begin
+        ($f)(d1, d2) = ($f)(float(d1), float(d2))
+        ($f)(d1) = ($f)(d1, zero(d1))
+        ($f)(df::NamedTuple{(:d, :fraction)}) = ($f)(df.d, df.fraction)
+    end
+end
+
+for f in (:taiut1, :tdbtt, :tttdb, :ttut1, :ut1tai, :ut1tt, :ut1utc, :utcut1)
+    @eval begin
+        ($f)(d1, d2, dt) = ($f)(float(d1), float(d2), float(dt))
+        ($f)(d1, dt) = ($f)(d1, zero(d1), dt)
+        ($f)(df::NamedTuple{(:day, :fraction)}, dt) = ($f)(df.day, df.fraction, dt)
+        ($f)(dt) = Base.Fix2($f, dt)
+    end
 end
