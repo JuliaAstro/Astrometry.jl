@@ -1413,6 +1413,9 @@
 @test all(isapprox.(values(SOFA.utctai(2_451_555)|>SOFA.taiut1(-31.5)),
                     values(SOFA.utcut1(2_451_555, 0.5)); atol=1e-12))
 
+@test all(isapprox.(values(SOFA.utctai(2_451_555)|>SOFA.taiutc),
+                    (2_451_555.0, 0.0); atol=1e-12))
+
 ####    Test Astronomy Horizontal-Equatorial    ####
 
 @test all(abs.(values(SOFA.ae2hd(5.5, 1.1, 0.7)) .-
