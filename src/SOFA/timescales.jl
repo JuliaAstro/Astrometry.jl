@@ -872,7 +872,7 @@ Seidelmann (ed), University Science Books (1992)
 """
 function tttai(day1::AbstractFloat, day2::AbstractFloat)
     abs(day1) > abs(day2) ?
-        (day = day1, frcation = day2 - TT_MINUS_TAI/SECPERDAY) :
+        (day = day1, fraction = day2 - TT_MINUS_TAI/SECPERDAY) :
         (day = day1 - TT_MINUS_TAI/SECPERDAY, fraction = day2)
 end
 
@@ -1237,8 +1237,8 @@ function utctai(day1::AbstractFloat, day2::AbstractFloat)
     dat12 = dat(year, month, day, 0.5)
 
     #  Get TAI-UTC at 0 hours tomorrow (to detect jumps).
-    year1, month1, day1, frac1 = jd2cal(utc1 + 1.5, utc2 - frac)
-    dat24 = dat(year1, month1, day1, 0.0)
+    y1, m1, d1, _f1 = jd2cal(utc1 + 1.5, utc2 - frac)
+    dat24 = dat(y1, m1, d1, 0.0)
 
     #  Separate TAI-UTC change into per-day (DKOD) and any jump (DLEAP).
     dlod = 2*(dat12 - dat00)
