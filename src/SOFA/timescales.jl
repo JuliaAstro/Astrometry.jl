@@ -1326,7 +1326,7 @@ for f in (:taitt, :taiutc, :tcbtdb, :tcgtt, :tdbtcb, :tttai, :tttcg, :utctai)
     @eval begin
         ($f)(d1, d2) = ($f)(float(d1), float(d2))
         ($f)(d1) = ($f)(d1, zero(d1))
-        ($f)(df::NamedTuple{(:d, :fraction)}) = ($f)(df.d, df.fraction)
+        ($f)(df::NamedTuple{(:day, :fraction)}) = ($f)(df.day, df.fraction)
     end
 end
 
