@@ -5,3 +5,12 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "monthly"
+  - package-ecosystem: "julia"
+    directories: ["/", "/docs"] # Location of Julia projects
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "Astrometry" # Ignore package itself
+    groups:
+      per-dependency:
+        group-by: dependency-name
