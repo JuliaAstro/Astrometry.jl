@@ -9,6 +9,7 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StaticUnivariatePolynomials = "6f584044-cad5-5b68-a429-1e244a824f76"
 
 [compat]
+LinearAlgebra = "< 0.0.1, 1.8"
 StaticArrays = "1.9"
 StaticUnivariatePolynomials = "0.6"
 julia = "1.8"
